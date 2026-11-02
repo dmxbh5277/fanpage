@@ -109,6 +109,33 @@ th{font-weight:500;color:var(--muted);font-size:var(--fs-small)}
 .sum th:first-child,.sum td:first-child{text-align:left}
 .sticky-first th:first-child,.sticky-first td:first-child{position:sticky;left:0;background:var(--surface)}
 .tk-box{margin-bottom:var(--gap)}
+.money-strip{display:grid;grid-template-columns:repeat(4,1fr);margin-bottom:var(--gap);overflow:hidden}
+.money-strip div{padding:14px 16px;border-left:1px solid var(--rule)}
+.money-strip div:first-child{border-left:0}
+.money-strip span{display:block;color:var(--muted);font-size:var(--fs-small);line-height:16px}
+.money-strip b{display:block;margin-top:4px;font-size:20px;line-height:28px;font-weight:700;white-space:nowrap}
+.money-strip .lead b{font-size:26px;line-height:32px}
+.money-strip .am b,.quy-t .am{color:var(--negative)}
+.money-strip .thu{background:var(--tone-xanh)}.money-strip .thu b{color:#17663f}.money-strip .thu span{color:#2d5a43}
+.money-strip .chi{background:var(--tone-do)}.money-strip .chi b{color:#a81f25}.money-strip .chi span{color:#7c3236}
+.money-strip .lead{background:var(--blue)}.money-strip .lead span,.money-strip .lead b{color:#fff}
+.money-strip .lead.am{background:var(--negative)}
+.quy-box{border-top:3px solid #247b50}.quy-box.chi-mode{border-top-color:var(--negative)}
+.seg button.seg-thu[aria-pressed=true]{background:#247b50}.seg button.seg-chi[aria-pressed=true]{background:var(--negative)}
+.quy-t td.vao{color:#17663f;font-weight:500}.quy-t td.ra{color:#c4242a;font-weight:500}
+.quy-t td.ton{color:var(--blue);font-weight:700}.quy-t td.ton.am{color:var(--negative)}
+.quy-t tfoot td.vao,.quy-t tfoot td.ra,.quy-t tfoot td.ton{font-weight:700}
+.quy-form{display:grid;grid-template-columns:auto 150px 1.4fr 150px 1fr auto;gap:10px;align-items:end;padding:0 16px 16px}
+.quy-form .field input{margin-top:6px}
+.seg{display:flex;padding:3px;border-radius:var(--radius-control);background:var(--raised)}
+.seg button{height:34px;padding:0 16px;border:0;border-radius:4px;background:none;color:var(--muted);font-weight:500}
+.seg button[aria-pressed=true]{color:#fff}
+.quy-t{min-width:680px}
+.quy-t td small{display:block;margin-left:0;color:var(--muted);font-size:var(--fs-small);line-height:16px;font-weight:400}
+.quy-t th:nth-child(2),.quy-t td:nth-child(2){text-align:left}
+.quy-t .act{width:112px;white-space:nowrap}
+.link{height:32px;padding:0 8px;border:0;background:none;color:var(--blue);font-weight:500}
+.link.danger{color:var(--negative)}
 .sum td{height:44px;padding:0 12px;border-bottom:1px solid var(--rule);text-align:right}
 .sum td:first-child{font-weight:500}
 .sum tfoot td{border-bottom:0;font-weight:700}
@@ -159,7 +186,10 @@ dialog h2{margin-bottom:14px;font-size:18px;line-height:24px;font-weight:700}
 #toast{position:fixed;left:50%;bottom:20px;z-index:10;max-width:calc(100vw - 32px);transform:translateX(-50%);padding:10px 14px;border-radius:var(--radius-control);background:var(--ink);color:#fff;opacity:0;pointer-events:none;transition:opacity .2s}
 #toast.show{opacity:1}
 @media (max-width:900px){.columns,.admin{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:900px){.quy-form{grid-template-columns:1fr 1fr}.quy-form .wide{grid-column:1/-1}}
 @media (max-width:640px){
+  .money-strip{grid-template-columns:1fr 1fr}.money-strip div:nth-child(3){border-left:0}.money-strip div:nth-child(n+3){border-top:1px solid var(--rule)}
+  .tabs{min-width:0;overflow-x:auto;scrollbar-width:none}
   .topbar-in{gap:6px;height:52px;padding:0 10px}
   #dbWrap iframe{height:calc(100vh - 53px)}
   .brand span{display:none}
@@ -189,6 +219,7 @@ dialog h2{margin-bottom:14px;font-size:18px;line-height:24px;font-weight:700}
   .sum th:first-child,.sum td:first-child{padding-left:16px}
   .sum th:last-child,.sum td:last-child{padding-right:16px}
 }
+@media (max-width:380px){.tab{padding:0 3px;font-size:12px}.tab[aria-current]::after{left:3px;right:3px}.topbar-in{gap:4px;padding:0 8px}#mgr{padding:0 6px;font-size:12px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -203,6 +234,7 @@ dialog h2{margin-bottom:14px;font-size:18px;line-height:24px;font-weight:700}
     <button class="tab" id="tabRs">Roadshow</button>
     <button class="tab" id="tabDb">Đăng bài</button>
     <button class="tab" id="tabTk" hidden>Thống kê</button>
+    <button class="tab" id="tabQuy">Quỹ</button>
   </nav>
   <div class="top-right"><button class="btn" id="mgr">Quản lý</button></div>
 </div></header>
@@ -282,7 +314,7 @@ const ST_KEY = "lich_sieu_thi_chon";
 const $ = id => document.getElementById(id);
 
 const state = {st:"",stores:[],units:[],tab:"ca",year:0,month:0,week:null,rsDay:null,employees:[],codes:[],cells:{},locks:{},
-  rsPlans:[],rsChecks:{},rsEmp:{},rsPlan:null,rsDraft:null,pw:null,active:null,pending:0,loadId:0,loaded:false,failed:false,after:null};
+  quy:null,quyForm:null,rsPlans:[],rsChecks:{},rsEmp:{},rsPlan:null,rsDraft:null,pw:null,active:null,pending:0,loadId:0,loaded:false,failed:false,after:null};
 
 function mondayOf(d){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x}
 function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
@@ -372,6 +404,17 @@ function localPost(b){
     if(!m&&plan.locked)throw new Error("Lịch chạy này đã khóa");
     const k=[b.id,b.date,b.tickSt,b.name,b.buoi].join("|");if(b.on)d.checks[k]=true;else delete d.checks[k];
   }
+  if(b.action==="quyLoad"||b.action==="quySave"||b.action==="quyDelete"){
+    if(b.action==="quyDelete"&&!m)throw new Error("Cần đăng nhập quản lý");
+    const ds=d.quy=d.quy||[];
+    if(b.action==="quyLoad"){
+      const mine=ds.filter(r=>r.st===b.st);let tonDau=0;
+      mine.forEach(r=>{if(r.ngay<b.month+"-01")tonDau+=r.loai==="Thu"?r.soTien:-r.soTien});
+      return {tonDau,rows:mine.filter(r=>r.ngay.startsWith(b.month)).sort((x,y)=>x.ngay.localeCompare(y.ngay))};
+    }
+    d.quy=ds.filter(r=>r.id!==b.id);
+    if(b.action==="quySave")d.quy.push({id:b.id,st:b.st,ngay:b.ngay,loai:b.loai,noiDung:b.noiDung,soTien:b.soTien,ghiChu:b.ghiChu});
+  }
   if(b.action==="rsSetCost")plan.cost=b.cost;
   if(b.action==="rsSetLock")plan.locked=b.locked;
   writeStore(d);return {};
@@ -440,7 +483,7 @@ function noStore(v){
 }
 function render(){
   const lefts=[...document.querySelectorAll(".table-scroll,.days,.weeks")].map(x=>x.scrollLeft);
-  [["tabCa","ca"],["tabRs","rs"],["tabDb","db"],["tabTk","tk"]].forEach(([id,t])=>{
+  [["tabCa","ca"],["tabRs","rs"],["tabDb","db"],["tabTk","tk"],["tabQuy","quy"]].forEach(([id,t])=>{
     if(state.tab===t)$(id).setAttribute("aria-current","page");else $(id).removeAttribute("aria-current");
   });
   $("tabTk").hidden=!state.pw;
@@ -451,7 +494,7 @@ function render(){
     return;
   }
   $("view").textContent="";
-  if(state.tab==="ca")renderCa();else if(state.tab==="rs")renderRs();else renderTk();
+  if(state.tab==="ca")renderCa();else if(state.tab==="rs")renderRs();else if(state.tab==="quy")renderQuy();else renderTk();
   document.querySelectorAll(".table-scroll,.days,.weeks").forEach((x,i)=>{if(lefts[i])x.scrollLeft=lefts[i]});
 }
 function stateBlock(v){
@@ -738,6 +781,84 @@ function renderDraft(){
   b2.append(acts);side.append(b2);wrap.append(cal,side);return wrap;
 }
 
+/* ---------- Quỹ ---------- */
+function quyMoi(){
+  const hom=ymd(new Date());
+  return {id:"",ngay:hom.startsWith(ym())?hom:ym()+"-01",loai:"Thu",noiDung:"",soTien:"",ghiChu:""};
+}
+async function loadQuy(){
+  if(!state.st){state.quy=null;render();return}
+  const m=ym(),st=state.st;
+  try{
+    const d=await apiPost({action:"quyLoad",month:m});
+    if(m===ym()&&st===state.st&&state.tab==="quy"){state.quy=d;render()}
+  }catch(e){toast(e.message||"Chưa tải được quỹ")}
+}
+function renderQuy(){
+  const v=$("view");
+  const q=state.quy,tongThu=q?q.rows.filter(r=>r.loai==="Thu").reduce((a,r)=>a+r.soTien,0):0,tongChi=q?q.rows.filter(r=>r.loai==="Chi").reduce((a,r)=>a+r.soTien,0):0;
+  const ton=q?q.tonDau+tongThu-tongChi:0;
+  v.append(titleRow("Quỹ tháng "+(state.month+1),!state.st?"Chưa khai báo siêu thị":!q?"Đang tải":"Tồn cuối tháng "+money(ton)));
+  if(!state.loaded){stateBlock(v);return}
+  if(!state.st){noStore(v);return}
+  if(!q){stateBlock(v);return}
+  const strip=el("section","panel money-strip"),cell=(t,n,c)=>{const d=el("div",c||"");d.append(el("span","",t),el("b","",money(n)));strip.append(d)};
+  cell("Tồn đầu tháng",q.tonDau,q.tonDau<0?"am":"");cell("Tổng thu",tongThu,"thu");cell("Tổng chi",tongChi,"chi");cell("Tồn cuối tháng",ton,"lead"+(ton<0?" am":""));
+  v.append(strip);
+
+  if(!state.quyForm||!state.quyForm.ngay.startsWith(ym()))state.quyForm=quyMoi();
+  const f_chi=()=>state.quyForm.loai==="Chi";
+  const f=state.quyForm,box=el("section","panel tk-box quy-box"+(f_chi()?" chi-mode":"")),h=el("div","panel-head");
+  h.append(el("h2","",f.id?"Sửa khoản":"Thêm khoản thu chi"));box.append(h);
+  const form=el("form","quy-form"),seg=el("div","seg");
+  ["Thu","Chi"].forEach(x=>{const b=btn("seg-"+x.toLowerCase(),x,()=>{f.loai=x;render()});b.type="button";b.setAttribute("aria-pressed",f.loai===x);seg.append(b)});
+  const input=(lab,k,attr,cls)=>{
+    const l=el("label","field "+(cls||""),lab),i=el("input");i.value=f[k];Object.assign(i,attr||{});i.id="quy_"+k;
+    i.oninput=()=>{f[k]=i.value;if(k==="soTien"){const n=+i.value.replace(/\D/g,"");i.value=n?n.toLocaleString("vi-VN"):"";f[k]=i.value}};
+    l.append(i);form.append(l);
+  };
+  form.append(seg);
+  input("Ngày","ngay",{type:"date",min:ym()+"-01",max:ymd(new Date(state.year,state.month+1,0))});
+  input(f.loai==="Thu"?"Thu từ khoản gì":"Chi cho việc gì","noiDung",{},"wide");
+  input("Số tiền (đồng)","soTien",{inputMode:"numeric"});
+  input("Ghi chú","ghiChu",{});
+  const acts=el("div","inline"),sv=el("button","btn primary",f.id?"Lưu":"Thêm");sv.type="submit";acts.append(sv);
+  if(f.id){const c=btn("btn","Hủy",()=>{state.quyForm=quyMoi();render()});c.type="button";acts.append(c)}
+  form.append(acts);form.onsubmit=saveQuy;box.append(form);v.append(box);
+
+  const list=el("section","panel"),h2=el("div","panel-head");h2.append(el("h2","","Sổ quỹ tháng "+(state.month+1)));list.append(h2);
+  if(!q.rows.length){list.append(el("p","empty","Tháng này chưa có khoản thu chi."));v.append(list);return}
+  const sc=el("div","table-scroll"),g=el("table","sum quy-t"),th=el("thead"),hr=el("tr");
+  ["Ngày","Nội dung","Thu","Chi","Tồn",""].forEach(x=>hr.append(el("th","",x)));th.append(hr);g.append(th);
+  const body=el("tbody");let chay=q.tonDau;
+  q.rows.forEach(r=>{
+    chay+=r.loai==="Thu"?r.soTien:-r.soTien;
+    const tr=el("tr"),nd=el("td","",r.noiDung);if(r.ghiChu)nd.append(el("small","",r.ghiChu));
+    const a=el("td","act");
+    a.append(btn("link","Sửa",()=>{state.quyForm={...r,soTien:r.soTien.toLocaleString("vi-VN")};render();window.scrollTo(0,0)}),btn("link danger","Xóa",()=>needMgr(()=>delQuy(r))));
+    tr.append(el("td","",dm(parse(r.ngay))),nd,el("td",r.loai==="Thu"?"vao":"zero",r.loai==="Thu"?money(r.soTien):"–"),el("td",r.loai==="Chi"?"ra":"zero",r.loai==="Chi"?money(r.soTien):"–"),el("td","ton"+(chay<0?" am":""),money(chay)),a);
+    body.append(tr);
+  });
+  g.append(body);
+  const tf=el("tfoot"),fr=el("tr");fr.append(el("td","","Tổng"),el("td"),el("td","vao",money(tongThu)),el("td","ra",money(tongChi)),el("td","ton"+(ton<0?" am":""),money(ton)),el("td"));tf.append(fr);g.append(tf);
+  sc.append(g);list.append(sc);v.append(list);
+}
+async function saveQuy(e){
+  e.preventDefault();
+  const f=state.quyForm,soTien=+String(f.soTien).replace(/\D/g,"");
+  if(!f.noiDung.trim()){toast("Chưa nhập nội dung");return}
+  if(!soTien){toast("Chưa nhập số tiền");return}
+  if(!f.ngay.startsWith(ym())){toast("Chọn ngày trong tháng đang xem");return}
+  const id=f.id||Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  if(await send({action:"quySave",id,ngay:f.ngay,loai:f.loai,noiDung:f.noiDung,soTien,ghiChu:f.ghiChu},f.id?"Đã sửa":"Đã thêm")){
+    const loai=f.loai,ngay=f.ngay;state.quyForm={...quyMoi(),loai,ngay};await loadQuy();
+  }
+}
+async function delQuy(r){
+  if(!confirm("Xóa khoản \""+r.noiDung+"\"?"))return;
+  if(await send({action:"quyDelete",id:r.id},"Đã xóa")){if(state.quyForm&&state.quyForm.id===r.id)state.quyForm=null;await loadQuy()}
+}
+
 /* ---------- Phân ca ---------- */
 function openPicker(name,date){
   state.active={name,date};
@@ -891,19 +1012,20 @@ async function saveCode(){
 
 function rememberStore(st){state.st=st;try{if(st)localStorage.setItem(ST_KEY,st)}catch(e){}}
 function resetData(){
-  Object.assign(state,{week:null,rsDay:null,rsPlan:null,rsDraft:null,employees:[],rsPlans:[],rsChecks:{},rsEmp:{},cells:{},locks:{},loaded:false,failed:false});
+  Object.assign(state,{week:null,rsDay:null,rsPlan:null,rsDraft:null,employees:[],rsPlans:[],rsChecks:{},rsEmp:{},cells:{},locks:{},quy:null,quyForm:null,loaded:false,failed:false});
 }
 function goMonth(n){
   const d=new Date(state.year,state.month+n,1);state.year=d.getFullYear();state.month=d.getMonth();
-  resetData();render();load();
+  resetData();render();load();if(state.tab==="quy")loadQuy();
 }
-function setStore(st){const w=state.week;rememberStore(st);resetData();state.week=w;render();load()}
-function setTab(t){state.tab=t;render();window.scrollTo(0,0)}
+function setStore(st){const w=state.week;rememberStore(st);resetData();state.week=w;render();load();if(state.tab==="quy")loadQuy()}
+function setTab(t){state.tab=t;if(t==="quy"){state.quy=null;render();loadQuy()}else render();window.scrollTo(0,0)}
 
 $("tabCa").onclick=()=>setTab("ca");
 $("tabRs").onclick=()=>setTab("rs");
 $("tabTk").onclick=()=>setTab("tk");
 $("tabDb").onclick=()=>setTab("db");
+$("tabQuy").onclick=()=>setTab("quy");
 $("mgr").onclick=()=>{if(state.pw){state.pw=null;if(state.tab==="tk")state.tab="ca";render()}else needMgr(()=>{})};
 $("loginForm").onsubmit=login;
 $("closeLogin").onclick=()=>$("loginDlg").close();
@@ -929,7 +1051,7 @@ $("saveCode").onclick=saveCode;
 /* Tự cập nhật mỗi 30 giây để thấy thay đổi của người khác */
 if(API_URL)setInterval(()=>{
   const busy=state.rsDraft||document.querySelector("dialog[open]")||document.activeElement.tagName==="INPUT";
-  if(!document.hidden&&!state.pending&&!busy&&state.tab!=="db")load(true);
+  if(!document.hidden&&!state.pending&&!busy&&state.tab!=="db"){if(state.tab==="quy")loadQuy();else load(true)}
 },30000);
 </script>
 </body>
