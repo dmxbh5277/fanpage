@@ -160,7 +160,7 @@ a{color:var(--chinh)}
   <label class="ban">Bạn là<select id="chonNV" aria-label="Chọn tên nhân viên"></select></label>
 </aside>
 <div class="vung">
-  <div id="bangDemo" class="demo" hidden>Bản chạy thử: dữ liệu chỉ lưu trên máy này. Mã quản lý thử: 1234</div>
+  <div id="bangDemo" class="demo" hidden>Bản chạy thử: dữ liệu chỉ lưu trên máy này. Mã quản lý thử: 1234, mã nhân viên thử: 5678</div>
   <div class="dau"><h1 id="tieuDe">Lịch đăng bài</h1><p id="moTa"></p></div>
   <main id="noiDung"></main>
 </div>
@@ -229,8 +229,10 @@ const macDinh=()=>({id:'',ngay:'',gio:'',nvId:'',chuDe:'',noiDung:'',anhUrl:'',t
 function demoApi(a,p){
   const d=demoTai(),q=x=>d.baiDang.find(b=>b.id===x),xong=()=>(demoLuu(d),JSON.parse(JSON.stringify(d)));
   if(a==='getData')return xong();
+  if(['markDone','markGroup','staffSave','staffUpload','staffPost'].includes(a)&&p.ma!=='5678')throw new Error('Sai mã nhân viên');
   if(a==='markDone'){const b=q(p.id);if(b.nvId!==p.nvId)throw new Error('Bài này không phân cho nhân viên đã chọn');if(p.noiDung!==undefined)b.noiDung=p.noiDung;if(p.anhUrl!==undefined)b.anhUrl=p.anhUrl;Object.assign(b,{trangThai:'Đã đăng',dangLuc:gioNay(),linkBai:p.linkBai||'',ghiChu:p.ghiChu||b.ghiChu,capNhat:gioNay()});return xong()}
-  if(a==='staffSave'){const b=q(p.id);if(b.nvId!==p.nvId)throw new Error('Bài này không phân cho nhân viên đã chọn');if(p.noiDung!==b.noiDung||p.anhUrl!==b.anhUrl)b.duyet=false;b.noiDung=p.noiDung;b.anhUrl=p.anhUrl;return xong()}
+  if(a==='staffSave'){const b=q(p.id);if(b.nvId!==p.nvId)throw new Error('Bài này không phân cho nhân viên đã chọn');b.noiDung=p.noiDung;b.anhUrl=p.anhUrl;b.tuDong=!!p.tuDong&&!!p.noiDung;if(b.trangThai==='Lỗi')Object.assign(b,{trangThai:'Chưa đăng',loi:''});return xong()}
+  if(a==='staffPost'){const b=q(p.id);if(b.nvId!==p.nvId)throw new Error('Bài này không phân cho nhân viên đã chọn');Object.assign(b,{noiDung:p.noiDung,anhUrl:p.anhUrl,trangThai:'Đã đăng',dangLuc:gioNay(),ghiChu:'Chạy thử, chưa đăng thật'});return xong()}
   if(a==='staffUpload')throw new Error('Bản chạy thử chưa tải được ảnh. Hãy dán link ảnh.');
   if(a==='markGroup'){if(!p.nvId)throw new Error('Chọn tên của bạn trước');if(!d.dangNhom.some(x=>x.baiId===p.baiId&&x.nhomId===p.nhomId))d.dangNhom.push({id:'dn'+Date.now(),baiId:p.baiId,nhomId:p.nhomId,nvId:p.nvId,thoiGian:new Date().toISOString().slice(0,19)});return xong()}
   if(pin!=='1234')throw new Error('Sai mã quản lý');
@@ -289,35 +291,43 @@ function taoXoay(d,tu,den,thu,gios){
 
 /* ===== KHUNG ===== */
 const MUC=[
-['lich','Lịch','Lịch đăng bài','Bấm vào giờ được phân để tạo bài.','M4 6h16v14H4zM4 10h16M8 3v4M16 3v4'],
-['cua-toi','Bài của tôi','Bài của tôi','Các bài được phân cho bạn.','M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM5 20a7 7 0 0 1 14 0'],
-['hoi-nhom','Hội nhóm','Đăng vào hội nhóm','Bài đã lên fanpage trong 7 ngày gần nhất.','M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 19a6 6 0 0 1 12 0M16 5a3 3 0 0 1 0 6M18 14a6 6 0 0 1 3 5'],
-['thong-ke','Thống kê','Thống kê đăng bài','Đúng giờ, đăng trễ và không đăng theo tháng.','M5 20V11M12 20V4M19 20v-6'],
-['khai-bao','Khai báo','Khai báo','Nhân viên, chủ đề, khung giờ và hội nhóm.','M4 7h10M18 7h2M4 17h2M10 17h10M16 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM8 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4z'],
-['phan-lich','Phân lịch tự động','Phân lịch tự động','Chia ngẫu nhiên, xoay vòng nhân viên và chủ đề vào lịch tháng.','M4 8h11l-3-3M20 16H9l3 3'],
-['tu-dong','Đăng tự động','Đăng tự động','Duyệt bài và kết nối fanpage.','M13 3L5 14h6l-1 7 8-11h-6z']];
+['lich','Lịch','Lịch đăng bài','','M4 6h16v14H4zM4 10h16M8 3v4M16 3v4','nv ql'],
+['tong-quan','Tổng quan tháng','Tổng quan tháng','Số lần đăng theo lịch của từng người.','M5 20V11M12 20V4M19 20v-6','nv'],
+['thong-ke','Thống kê','Thống kê đăng bài','Đúng giờ, đăng trễ và không đăng theo tháng.','M5 20V11M12 20V4M19 20v-6','ql'],
+['phan-lich','Phân lịch tự động','Phân lịch tự động','Chia ngẫu nhiên, xoay vòng nhân viên và chủ đề vào lịch tháng.','M4 8h11l-3-3M20 16H9l3 3','ql'],
+['khai-bao','Khai báo','Khai báo','Nhân viên, chủ đề, khung giờ và hội nhóm.','M4 7h10M18 7h2M4 17h2M10 17h10M16 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM8 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4z','ql'],
+['hoi-nhom','Hội nhóm','Tiến độ hội nhóm','Bài đã lên fanpage trong 7 ngày gần nhất.','M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 19a6 6 0 0 1 12 0M16 5a3 3 0 0 1 0 6M18 14a6 6 0 0 1 3 5','ql'],
+['tu-dong','Kết nối fanpage','Kết nối fanpage','Kết nối Facebook, theo dõi bài hẹn giờ và bài lỗi.','M13 3L5 14h6l-1 7 8-11h-6z','ql']];
+const vai=()=>pin?'ql':'nv';
 function batMenu(){const v=document.querySelector('.ben').classList.toggle('mo-menu');$('nutMenu').setAttribute('aria-expanded',v)}
 function veTabs(){
-  $('tabs').innerHTML=MUC.map(([k,t,,,i])=>`<button class="${k===tab?'on':''}" ${k===tab?'aria-current="page"':''} onclick="doiTab('${k}')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${i}"/></svg>${t}</button>`).join('');
-  const m=MUC.find(x=>x[0]===tab);$('tieuDe').textContent=m[2];$('moTa').textContent=m[3];
+  $('tabs').innerHTML=MUC.filter(m=>m[5].includes(vai())).map(([k,t,,,i])=>`<button class="${k===tab?'on':''}" ${k===tab?'aria-current="page"':''} onclick="doiTab('${k}')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${i}"/></svg>${t}</button>`).join('');
+  const m=MUC.find(x=>x[0]===tab)||['','','Đăng nhập quản lý','Nhập mã để sắp xếp lịch và quản trị web.'];$('tieuDe').textContent=m[2];$('moTa').textContent=tab==='lich'?(pin?'Bấm vào giờ để đổi lịch hoặc đổi người đăng.':'Bấm vào giờ của bạn để tạo bài và đăng.'):m[3];
 }
 function veChonNV(){
-  const v=nho.get('nvChon')||'';
-  $('chonNV').innerHTML='<option value="">Chọn tên của bạn</option>'+db.nhanVien.filter(n=>n.hoatDong).map(n=>`<option value="${esc(n.id)}" ${n.id===v?'selected':''}>${esc(n.ten)}</option>`).join('');
+  const v=pin?'ql':(nho.get('nvChon')||'');
+  $('chonNV').innerHTML='<option value="">Chọn tên của bạn</option>'+db.nhanVien.filter(n=>n.hoatDong).map(n=>`<option value="${esc(n.id)}">${esc(n.ten)}</option>`).join('')+'<option value="ql">Quản lý</option>';
+  $('chonNV').value=tab==='dang-nhap'?'ql':v;
 }
-$('chonNV').onchange=e=>{nho.set('nvChon',e.target.value);ve()};
+$('chonNV').onchange=e=>{
+  const v=e.target.value;
+  if(v==='ql'){if(!pin)tab='dang-nhap';return ve()}
+  pin='';ketNoi=null;nho.set('nvChon',v);
+  tab=MUC.some(m=>m[0]===tab&&m[5].includes('nv'))?tab:'lich';
+  ve();
+};
 function doiTab(k){tab=k;document.querySelector('.ben').classList.remove('mo-menu');$('nutMenu').setAttribute('aria-expanded',false);window.scrollTo(0,0);ve()}
 function ve(){
   veTabs();veChonNV();
-  const m={lich:veLich,'cua-toi':veCuaToi,'hoi-nhom':veHoiNhom,'thong-ke':veThongKe,'khai-bao':veKhaiBao,'phan-lich':vePhanLich,'tu-dong':veTuDong}[tab];
+  const m={lich:veLich,'dang-nhap':veDangNhap,'tong-quan':veTongQuan,'hoi-nhom':veHoiNhom,'thong-ke':veThongKe,'khai-bao':veKhaiBao,'phan-lich':vePhanLich,'tu-dong':veTuDong}[tab];
   m();
 }
-function canQL(){
-  if(pin)return false;
-  $('noiDung').innerHTML=`<div class="the" style="max-width:360px;margin:auto"><h2>Dành cho quản lý</h2><label>Mã quản lý<input id="oPin" type="password" inputmode="numeric" onkeydown="if(event.key==='Enter')dangNhap()"></label><button class="nut chinh" onclick="dangNhap()">Vào</button></div>`;
-  return true;
+function canQL(){if(pin)return false;tab='dang-nhap';ve();return true}
+function veDangNhap(){
+  $('noiDung').innerHTML=`<div class="the" style="max-width:360px"><label>Mã quản lý<input id="oPin" type="password" inputmode="numeric" onkeydown="if(event.key==='Enter')dangNhap()"></label><button class="nut chinh" onclick="dangNhap()">Vào quản lý</button></div>`;
+  $('oPin').focus();
 }
-async function dangNhap(){const c=pin;pin=$('oPin').value;try{await api('login');ve()}catch(e){pin=c;toast(e.message)}}
+async function dangNhap(){const c=pin;pin=$('oPin').value;try{await api('login');tab='lich';ve()}catch(e){pin=c;toast(e.message)}}
 
 /* ===== LỊCH ===== */
 function veLich(){
@@ -359,13 +369,17 @@ function chepTuan(){
 }
 
 /* ===== BÀI CỦA TÔI ===== */
-function dongBai(b){return`<div class="dong" onclick="moBai('${esc(b.id)}')"><div><b>${thuNgay(b.ngay)}, ${esc(b.gio)}</b><small>${esc(b.chuDe||'Chưa có chủ đề')}</small></div>${nhan(b)}</div>`}
-function veCuaToi(){
-  const v=$('chonNV').value;
-  if(!v){$('noiDung').innerHTML='<div class="the trong">Chọn tên của bạn ở góc trên.</div>';return}
-  const ds=db.baiDang.filter(b=>b.nvId===v).sort(sapXep);
-  const con=ds.filter(b=>tt(b)!=='xong'),xong=ds.filter(b=>tt(b)==='xong').reverse().slice(0,10);
-  $('noiDung').innerHTML=`<div class="the"><h2>Cần đăng (${con.length})</h2>${con.map(dongBai).join('')||'<div class="trong">Không còn bài nào.</div>'}</div><div class="the"><h2>Đã đăng gần đây</h2>${xong.map(dongBai).join('')||'<div class="trong">Chưa có.</div>'}</div>`;
+function veTongQuan(){
+  const p=y=>ymd(new Date(thang.getFullYear(),thang.getMonth()+y,y?0:1));
+  const tu=p(0),den=p(1),v=$('chonNV').value,bai=db.baiDang.filter(b=>b.ngay>=tu&&b.ngay<=den).sort(sapXep);
+  const dem=d=>({tong:d.length,xong:d.filter(b=>b.trangThai==='Đã đăng').length});
+  const cua=bai.filter(b=>b.nvId===v),t=dem(cua);
+  const hang=db.nhanVien.map(n=>({n,...dem(bai.filter(b=>b.nvId===n.id))})).filter(h=>h.tong).sort((a,b)=>b.tong-a.tong);
+  const toi=db.nhanVien.some(n=>n.id===v);
+  $('noiDung').innerHTML=`<div class="hang" style="margin-bottom:12px"><button class="nut" onclick="doiThang(-1)" aria-label="Tháng trước">‹</button><b>Tháng ${thang.getMonth()+1}/${thang.getFullYear()}</b><button class="nut" onclick="doiThang(1)" aria-label="Tháng sau">›</button></div>
+  ${toi?`<div class="so"><div><b>${t.tong}</b><span>Lần đăng của bạn</span></div><div><b>${t.xong}</b><span>Đã đăng</span></div><div><b>${t.tong-t.xong}</b><span>Còn lại</span></div></div>
+  <div class="the"><h2>Lịch của bạn</h2>${cua.map(b=>`<div class="dong" onclick="moBai('${esc(b.id)}')"><div><b>${thuNgay(b.ngay)}, ${esc(b.gio)}</b><small>${esc((b.chuDe||'Chưa có chủ đề').split('\n')[0])}</small></div>${nhan(b)}</div>`).join('')||'<div class="trong">Tháng này bạn chưa có lịch.</div>'}</div>`:'<div class="the trong">Chọn tên của bạn để xem lịch riêng.</div>'}
+  <div class="the"><h2>Cả siêu thị</h2>${hang.length?`<table><tr><th>Nhân viên</th><th class="so-p">Số lần đăng</th><th class="so-p">Đã đăng</th><th class="so-p">Còn lại</th></tr>${hang.map(h=>`<tr><td><div class="nguoi" style="margin:0">${avatar(h.n.id,h.n.ten)}<span>${esc(h.n.ten)}</span></div></td><td class="so-p">${h.tong}</td><td class="so-p">${h.xong}</td><td class="so-p">${h.tong-h.xong}</td></tr>`).join('')}</table>`:'<div class="trong">Tháng này chưa có lịch.</div>'}</div>`;
 }
 
 /* ===== THỐNG KÊ ===== */
@@ -468,34 +482,39 @@ function luuKB(){
 }
 
 /* ===== HỘI NHÓM ===== */
-function doiNhomTat(v){tatCaNhom=v;ve()}
 function veHoiNhom(){
-  const nhom=(db.nhom||[]).filter(n=>n.hoatDong),v=$('chonNV').value;
-  if(!nhom.length){$('noiDung').innerHTML='<div class="the trong">Chưa có hội nhóm. Quản lý vào tab Khai báo để thêm.</div>';return}
+  if(canQL())return;
+  const nhom=(db.nhom||[]).filter(n=>n.hoatDong);
+  if(!nhom.length){$('noiDung').innerHTML='<div class="the trong">Chưa có hội nhóm. Thêm ở Khai báo, mục Hội nhóm.</div>';return}
   const moc=new Date();moc.setDate(moc.getDate()-7);
-  const bai=db.baiDang.filter(b=>b.trangThai==='Đã đăng'&&b.ngay>=ymd(moc)&&(b.noiDung||b.linkBai)&&(tatCaNhom||!v||b.nvId===v)).sort(sapXep).reverse();
-  const xong=(b,n)=>(db.dangNhom||[]).find(x=>x.baiId===b.id&&x.nhomId===n.id);
-  const the=bai.map(b=>{
-    const dem=nhom.filter(n=>xong(b,n)).length;
-    return`<div class="the"><div class="hang gian"><b>${thuNgay(b.ngay)}, ${esc(b.gio)}</b><span class="nhan ${dem===nhom.length?'s-xong':'s-tre'}">${dem}/${nhom.length} nhóm</span></div>
-    <p style="margin:4px 0 8px;color:var(--mo);font-size:13px">${esc(tenNV(b.nvId))}: ${esc((b.noiDung||b.linkBai).slice(0,90))}</p>
-    ${linkAnToan(b.anhUrl)?`<p style="margin:0 0 8px;font-size:14px"><a href="${esc(b.anhUrl)}" target="_blank" rel="noopener">Mở ảnh để tải về</a></p>`:''}
-    ${nhom.map(n=>{const x=xong(b,n),k=b.id+'|'+n.id;
-      const nut=x?`<span class="nhan s-xong">${esc(tenNV(x.nvId))} đã đăng</span>`:moNhom[k]?`<button class="nut chinh" data-xong="${esc(k)}">Tôi đã đăng xong</button>`:`<button class="nut" data-mo="${esc(k)}">Đăng vào nhóm</button>`;
-      return`<div class="dong" style="cursor:default"><div>${esc(n.ten)}</div>${nut}</div>`}).join('')}</div>`}).join('');
-  $('noiDung').innerHTML=`<label class="chon" style="margin-bottom:12px"><input type="checkbox" ${tatCaNhom?'checked':''} onchange="doiNhomTat(this.checked)">Xem bài của tất cả nhân viên</label>${the||'<div class="the trong">Chưa có bài nào lên fanpage trong 7 ngày qua.</div>'}`;
+  const bai=db.baiDang.filter(b=>b.trangThai==='Đã đăng'&&b.ngay>=ymd(moc)).sort(sapXep).reverse();
+  $('noiDung').innerHTML=bai.map(b=>{
+    const xong=nhom.map(n=>[n,(db.dangNhom||[]).find(x=>x.baiId===b.id&&x.nhomId===n.id)]),dem=xong.filter(x=>x[1]).length;
+    return`<div class="the"><div class="hang gian"><b>${thuNgay(b.ngay)}, ${esc(b.gio)}</b><span class="nhan ${dem===nhom.length?'s-xong':'s-tre'}">${dem}/${nhom.length} nhóm</span></div><p style="margin:4px 0 8px;color:var(--mo);font-size:13px">${esc(tenNV(b.nvId))}</p>${xong.map(([n,x])=>`<div class="dong" style="cursor:default"><div>${esc(n.ten)}</div><span class="nhan ${x?'s-xong':'s-cho'}">${x?esc(tenNV(x.nvId))+' đã đăng':'Chưa đăng'}</span></div>`).join('')}</div>`}).join('')||'<div class="the trong">Chưa có bài nào lên fanpage trong 7 ngày qua.</div>';
+}
+function nhomTrongBai(b){
+  const nhom=(db.nhom||[]).filter(n=>n.hoatDong);if(!nhom.length)return'';
+  return`<div style="margin-bottom:12px"><b style="font-weight:700">Đăng vào hội nhóm</b>${nhom.map(n=>{const x=(db.dangNhom||[]).find(y=>y.baiId===b.id&&y.nhomId===n.id),k=b.id+'|'+n.id;
+    return`<div class="dong" style="cursor:default"><div>${esc(n.ten)}</div>${x?`<span class="nhan s-xong">${esc(tenNV(x.nvId))} đã đăng</span>`:moNhom[k]?`<button class="nut chinh" data-xong="${esc(k)}">Tôi đã đăng xong</button>`:`<button class="nut" data-mo="${esc(k)}">Đăng vào nhóm</button>`}</div>`}).join('')}</div>`;
+}
+function ganNhom(b){
   document.querySelectorAll('[data-mo]').forEach(e=>e.onclick=()=>{
-    const[bId,nId]=e.dataset.mo.split('|'),b=db.baiDang.find(x=>x.id===bId),n=db.nhom.find(x=>x.id===nId);
+    const n=db.nhom.find(x=>x.id===e.dataset.mo.split('|')[1]);
     chep(b.noiDung||b.linkBai,'Đã sao chép. Dán vào nhóm vừa mở');
     window.open(n.link,'_blank','noopener');
-    moNhom[e.dataset.mo]=true;ve();
+    moNhom[e.dataset.mo]=true;moXem(b);
   });
   document.querySelectorAll('[data-xong]').forEach(e=>e.onclick=async()=>{
-    const[baiId,nhomId]=e.dataset.xong.split('|'),nvId=$('chonNV').value;
-    if(!nvId)return toast('Chọn tên của bạn ở góc trên');
-    delete moNhom[e.dataset.xong];
-    await chay('markGroup',{baiId,nhomId,nvId},'Đã ghi nhận');
+    const[baiId,nhomId]=e.dataset.xong.split('|');
+    if(await chayNV('markGroup',{baiId,nhomId,nvId:b.nvId},'Đã ghi nhận')){delete moNhom[e.dataset.xong];moXem(db.baiDang.find(x=>x.id===b.id))}
   });
+}
+async function chayNV(action,payload,tb){
+  const nhap=$('mMa')?$('mMa').value.trim():'',ma=nho.get('maNV')||nhap;
+  if(!ma){toast('Nhập mã nhân viên');return null}
+  const r=await chay(action,{...payload,ma},tb);
+  if(r)nho.set('maNV',ma);else if($('toast').textContent==='Sai mã nhân viên')nho.set('maNV','');
+  return r;
 }
 
 /* ===== CHI TIẾT BÀI ===== */
@@ -507,52 +526,48 @@ function moBai(id){
 }
 function moMoi(ngay,gio){moSua({...macDinh(),ngay,gio})}
 function moXem(b){
-  const cuaToi=$('chonNV').value===b.nvId,link=linkAnToan(b.linkBai),sua=cuaToi&&b.trangThai!=='Đã đăng'&&b.trangThai!=='Đang đăng';
+  const cuaToi=$('chonNV').value===b.nvId,link=linkAnToan(b.linkBai),sua=cuaToi&&b.trangThai!=='Đã đăng'&&b.trangThai!=='Đang đăng',ma=cuaToi&&!nho.get('maNV');
   $('modal').innerHTML=`<div class="lop" onclick="if(event.target===this)dong()"><div class="hop"><h3>${thuNgay(b.ngay)}, ${esc(b.gio)} ${nhan(b)}</h3>
   <p style="margin:0 0 8px">Người đăng: <b>${esc(tenNV(b.nvId))}</b></p>
   ${b.chuDe?`<p style="margin:0 0 8px;white-space:pre-wrap">Chủ đề: ${esc(b.chuDe)}</p>`:''}
+  ${b.loi?`<p class="nd" style="background:var(--do-nhat);color:#831c1e">${esc(b.loi)}</p>`:''}
+  ${ma?`<label>Mã nhân viên<input id="mMa" type="password" autocomplete="off"></label>`:''}
   ${sua?`<button class="nut" id="mLenh" style="margin-bottom:10px">Sao chép lệnh cho Claude</button>
   <label>Thông tin thật về sản phẩm, giá, khuyến mãi (để Claude viết)<textarea id="mTT" style="min-height:64px"></textarea></label>
   <label>Nội dung bài<textarea id="mND">${esc(b.noiDung)}</textarea></label>
   <label>Chọn ảnh từ máy<input type="file" id="mFile" accept="image/*"></label>
   <label>Link ảnh<input id="mAnh" value="${esc(b.anhUrl)}"></label>
-  <div class="hang" style="margin-bottom:12px"><button class="nut chinh" id="mLuu">Lưu bài</button></div>
-  <label>Link bài đã đăng<input id="mLink" type="url" placeholder="https://facebook.com/..."></label><label>Ghi chú<input id="mGC"></label><button class="nut chinh" id="mXong">Xác nhận đã đăng</button>`:`
+  <label class="chon" style="margin-bottom:12px"><input type="checkbox" id="mTu" ${b.tuDong?'checked':''}>Tự đăng lên fanpage đúng giờ</label>
+  <div class="hang" style="margin-bottom:16px"><button class="nut chinh" id="mLuu">Lưu bài</button><button class="nut" id="mDang">Đăng ngay</button><button class="nut" id="mTay">Tôi tự đăng trên Facebook</button></div>
+  <div id="mTayKhoi" hidden><label>Link bài đã đăng<input id="mLink" type="url" placeholder="https://facebook.com/..."></label><label>Ghi chú<input id="mGC"></label><button class="nut chinh" id="mXong">Xác nhận đã đăng</button></div>`:`
   ${b.noiDung?`<div class="nd">${esc(b.noiDung)}</div><button class="nut" style="margin-bottom:10px" id="chepND">Sao chép nội dung</button>`:''}
   ${linkAnToan(b.anhUrl)?`<p style="margin:0 0 8px"><a href="${esc(b.anhUrl)}" target="_blank" rel="noopener">Xem ảnh</a></p>`:''}
   ${link?`<p style="margin:0 0 8px"><a href="${esc(link)}" target="_blank" rel="noopener">Mở bài đã đăng</a></p>`:''}
-  ${!cuaToi&&tt(b)!=='xong'?`<p style="color:var(--mo);font-size:13px">Muốn tạo bài, hãy chọn đúng tên người đăng ở góc trên.</p>`:''}`}
-  <button class="nut" onclick="dong()" style="margin-left:6px">Đóng</button></div></div>`;
+  ${cuaToi&&b.trangThai==='Đã đăng'?nhomTrongBai(b):''}
+  ${!cuaToi&&tt(b)!=='xong'?`<p style="color:var(--mo);font-size:13px">Muốn tạo bài, hãy chọn đúng tên người đăng.</p>`:''}`}
+  <button class="nut" onclick="dong()">Đóng</button></div></div>`;
   if($('chepND'))$('chepND').onclick=()=>chep(b.noiDung);
+  if(cuaToi&&b.trangThai==='Đã đăng')ganNhom(b);
   if(!sua)return;
-  const nvId=b.nvId;
+  const nvId=b.nvId,bd=()=>({id:b.id,nvId,noiDung:$('mND').value.trim(),anhUrl:$('mAnh').value.trim(),tuDong:$('mTu').checked});
   $('mLenh').onclick=()=>{const c=[b.chuDe,$('mTT').value.trim()].filter(Boolean).join('\n');if(!c)return toast('Nhập thông tin trước');chep(lenhClaude(c),'Đã sao chép. Dán vào Claude rồi chép bài về đây')};
-  $('mFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;toast('Đang tải ảnh...');try{const base64=await nenAnh(f);const r=await chay('staffUpload',{id:b.id,nvId,base64,ten:f.name});if(r&&r.url){$('mAnh').value=r.url;toast('Đã tải ảnh. Bấm Lưu bài để giữ lại')}}catch(err){toast('Không đọc được ảnh này')}};
-  $('mLuu').onclick=async()=>{const noiDung=$('mND').value.trim();if(!noiDung)return toast('Nhập nội dung bài');if(await chay('staffSave',{id:b.id,nvId,noiDung,anhUrl:$('mAnh').value.trim()},'Đã lưu bài'))dong()};
-  $('mXong').onclick=async()=>{const lk=$('mLink').value.trim();if(lk&&!linkAnToan(lk))return toast('Link phải bắt đầu bằng https://');if(await chay('markDone',{id:b.id,nvId,noiDung:$('mND').value.trim(),anhUrl:$('mAnh').value.trim(),linkBai:lk,ghiChu:$('mGC').value.trim()},'Đã xác nhận'))dong()};
+  $('mFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;toast('Đang tải ảnh...');try{const base64=await nenAnh(f);const r=await chayNV('staffUpload',{id:b.id,nvId,base64,ten:f.name});if(r&&r.url){$('mAnh').value=r.url;toast('Đã tải ảnh. Bấm Lưu bài để giữ lại')}}catch(err){toast('Không đọc được ảnh này')}};
+  $('mLuu').onclick=async()=>{const p=bd();if(!p.noiDung)return toast('Nhập nội dung bài');if(await chayNV('staffSave',p,p.tuDong?'Đã lưu, đến giờ sẽ tự đăng':'Đã lưu bài'))dong()};
+  $('mDang').onclick=async()=>{const p=bd();if(!p.noiDung)return toast('Nhập nội dung bài');if(!confirm('Đăng ngay lên fanpage?'))return;if(await chayNV('staffPost',p,'Đã gửi lệnh đăng')){const m=db.baiDang.find(x=>x.id===b.id);moNhom={};moXem(m)}};
+  $('mTay').onclick=()=>{$('mTayKhoi').hidden=false;$('mLink').focus()};
+  $('mXong').onclick=async()=>{const lk=$('mLink').value.trim();if(lk&&!linkAnToan(lk))return toast('Link phải bắt đầu bằng https://');const p=bd();delete p.tuDong;if(await chayNV('markDone',{...p,linkBai:lk,ghiChu:$('mGC').value.trim()},'Đã xác nhận'))moXem(db.baiDang.find(x=>x.id===b.id))};
 }
 function moSua(b){
   const opt=db.nhanVien.map(n=>`<option value="${esc(n.id)}" ${n.id===b.nvId?'selected':''}>${esc(n.ten)}</option>`).join('');
-  $('modal').innerHTML=`<div class="lop" onclick="if(event.target===this)dong()"><div class="hop"><h3>${b.id?'Sửa bài':'Thêm bài'} ${b.id?nhan(b):''}</h3>
-  ${b.loi?`<p class="nd" style="background:var(--do-nhat);color:var(--do)">${esc(b.loi)}</p>`:''}
+  $('modal').innerHTML=`<div class="lop" onclick="if(event.target===this)dong()"><div class="hop"><h3>${b.id?'Sắp xếp bài':'Thêm bài'} ${b.id?nhan(b):''}</h3>
+  ${b.loi?`<p class="nd" style="background:var(--do-nhat);color:#831c1e">${esc(b.loi)}</p>`:''}
   <div class="luoi2"><label>Ngày<input type="date" id="sNgay" value="${esc(b.ngay)}"></label><label>Giờ<input type="time" id="sGio" value="${esc(b.gio)}"></label><label>Người đăng<select id="sNV">${opt}</select></label><label>Trạng thái<select id="sTT">${[...new Set(['Chưa đăng','Đã đăng',b.trangThai||'Chưa đăng'])].map(t=>`<option ${t===b.trangThai?'selected':''}>${t}</option>`).join('')}</select></label></div>
-  <label>Chủ đề và thông tin thật về sản phẩm, giá, khuyến mãi<textarea id="sCD" style="min-height:76px">${esc(b.chuDe)}</textarea></label>
-  <div class="hang" style="margin-bottom:10px"><button class="nut" id="sChepLenh">Sao chép lệnh cho Claude</button><button class="nut" id="sAI">Claude viết bài</button></div>
-  <label>Nội dung bài<textarea id="sND">${esc(b.noiDung)}</textarea></label>
-  <label>Chọn ảnh từ máy<input type="file" id="sFile" accept="image/*"></label>
-  <label>Link ảnh (tự điền sau khi chọn ảnh, hoặc dán link công khai)<input id="sAnh" value="${esc(b.anhUrl)}"></label>
-  <label>Link bài đã đăng<input id="sLink" value="${esc(b.linkBai)}"></label>
-  <div class="hang"><label class="chon"><input type="checkbox" id="sTu" ${b.tuDong?'checked':''}>Tự đăng lên fanpage</label><label class="chon"><input type="checkbox" id="sDuyet" ${b.duyet?'checked':''}>Quản lý đã duyệt</label></div>
-  <div class="hang"><button class="nut chinh" id="sLuu">Lưu</button>${b.id?`<button class="nut" id="sDang">Đăng ngay</button><button class="nut do" id="sXoa">Xóa</button>`:''}<button class="nut" onclick="dong()">Đóng</button></div></div></div>`;
-  const lay=()=>({id:b.id,ngay:$('sNgay').value,gio:$('sGio').value,nvId:$('sNV').value,chuDe:$('sCD').value.trim(),noiDung:$('sND').value.trim(),anhUrl:$('sAnh').value.trim(),linkBai:$('sLink').value.trim(),trangThai:$('sTT').value,tuDong:$('sTu').checked,duyet:$('sDuyet').checked});
-  $('sFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;toast('Đang tải ảnh...');try{const base64=await nenAnh(f);const r=await chay('uploadImage',{base64,ten:f.name});if(r&&r.url){$('sAnh').value=r.url;toast('Đã tải ảnh. Bấm Lưu để giữ lại')}}catch(err){toast('Không đọc được ảnh này')}};
-  $('sChepLenh').onclick=()=>{const c=$('sCD').value.trim();if(!c)return toast('Nhập chủ đề trước');chep(lenhClaude(c),'Đã sao chép. Dán vào Claude rồi chép bài về đây')};
-  $('sAI').onclick=async e=>{const c=$('sCD').value.trim();if(!c)return toast('Nhập chủ đề trước');e.target.disabled=true;const r=await chay('aiWrite',{prompt:lenhClaude(c)});e.target.disabled=false;if(r&&r.text){$('sND').value=r.text;$('sDuyet').checked=false;toast('Đã viết xong. Đọc lại rồi mới duyệt')}};
-  $('sLuu').onclick=async()=>{const p=lay();if(!p.ngay||!p.gio||!p.nvId)return toast('Thiếu ngày, giờ hoặc người đăng');if(p.tuDong&&p.duyet&&!p.noiDung)return toast('Bài tự đăng cần có nội dung');if(await chay('savePost',p,'Đã lưu'))dong()};
-  if(b.id){
-    $('sXoa').onclick=async()=>{if(confirm('Xóa bài này?')&&await chay('deletePost',{id:b.id},'Đã xóa'))dong()};
-    $('sDang').onclick=async()=>{const p=lay();if(!p.noiDung)return toast('Bài chưa có nội dung');if(!confirm('Đăng ngay lên fanpage?'))return;if(!await chay('savePost',p))return;if(await chay('postNow',{id:b.id},'Đã gửi lệnh đăng'))dong()};
-  }
+  <label>Chủ đề<textarea id="sCD" style="min-height:76px">${esc(b.chuDe)}</textarea></label>
+  ${b.noiDung?`<p style="margin:0 0 4px;color:var(--mo);font-size:13px">Bài do nhân viên viết${b.tuDong?', đã hẹn tự đăng':''}</p><div class="nd">${esc(b.noiDung)}</div>`:''}
+  ${linkAnToan(b.linkBai)?`<p style="margin:0 0 10px"><a href="${esc(b.linkBai)}" target="_blank" rel="noopener">Mở bài đã đăng</a></p>`:''}
+  <div class="hang"><button class="nut chinh" id="sLuu">Lưu</button>${b.id?`<button class="nut do" id="sXoa">Xóa</button>`:''}<button class="nut" onclick="dong()">Đóng</button></div></div></div>`;
+  $('sLuu').onclick=async()=>{const p={id:b.id,ngay:$('sNgay').value,gio:$('sGio').value,nvId:$('sNV').value,chuDe:$('sCD').value.trim(),trangThai:$('sTT').value};if(!p.ngay||!p.gio||!p.nvId)return toast('Thiếu ngày, giờ hoặc người đăng');if(await chay('savePost',p,'Đã lưu'))dong()};
+  if(b.id)$('sXoa').onclick=async()=>{if(confirm('Xóa bài này?')&&await chay('deletePost',{id:b.id},'Đã xóa'))dong()};
 }
 function nenAnh(f){return new Promise((ok,loi)=>{const u=URL.createObjectURL(f),i=new Image();i.onerror=loi;i.onload=()=>{const t=Math.min(1,1600/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=Math.round(i.width*t);c.height=Math.round(i.height*t);const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(i,0,0,c.width,c.height);URL.revokeObjectURL(u);ok(c.toDataURL('image/jpeg',.88).split(',')[1])};i.src=u})}
 function lenhClaude(chuDe){return`Bạn là người viết bài Facebook cho một siêu thị Điện Máy Xanh tại An Giang.
@@ -574,28 +589,25 @@ function veTuDong(){
   const loi=db.baiDang.filter(b=>b.trangThai==='Lỗi').sort(sapXep);
   const c=ketNoi||{fb:'',ai:false};
   $('noiDung').innerHTML=`
-  <div class="so"><div><b style="font-size:16px">${c.fb?esc(c.fb):'Chưa kết nối'}</b><span>Fanpage</span></div><div><b style="font-size:16px">${c.ai?'Đã kết nối':'Chưa kết nối'}</b><span>Claude API (không bắt buộc)</span></div><div><b>${cho.filter(b=>!b.duyet).length}</b><span>Bài chờ duyệt</span></div></div>
-  ${loi.length?`<div class="the"><h2>Bài lỗi</h2>${loi.map(b=>`<div class="dong" onclick="moBai('${esc(b.id)}')"><div><b>${thuNgay(b.ngay)}, ${esc(b.gio)}</b><small>${esc(b.loi)}</small></div>${nhan(b)}</div>`).join('')}</div>`:''}
-  <div class="the"><h2>Hàng đợi tự đăng</h2>${cho.map(b=>`<div class="dong"><div onclick="moBai('${esc(b.id)}')" style="flex:1;min-width:0"><b>${thuNgay(b.ngay)}, ${esc(b.gio)}</b><small style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(b.noiDung||'Chưa có nội dung')}</small></div>${b.duyet?'<span class="nhan s-xong">Đã duyệt</span>':(b.noiDung?`<button class="nut" onclick="duyet('${esc(b.id)}')">Duyệt</button>`:'<span class="nhan s-tre">Thiếu bài</span>')}</div>`).join('')||'<div class="trong">Chưa có bài. Mở một bài trong Lịch và tick Tự đăng lên fanpage.</div>'}</div>
+  <div class="so"><div><b style="font-size:16px">${c.fb?esc(c.fb):'Chưa kết nối'}</b><span>Fanpage</span></div><div><b>${cho.length}</b><span>Bài đang hẹn tự đăng</span></div><div><b style="color:${loi.length?'var(--do)':'inherit'}">${loi.length}</b><span>Bài lỗi</span></div></div>
+  ${loi.length?`<div class="the"><h2>Bài lỗi</h2>${loi.map(b=>`<div class="dong" onclick="moBai('${esc(b.id)}')"><div><b>${thuNgay(b.ngay)}, ${esc(b.gio)}</b><small>${esc(tenNV(b.nvId))}: ${esc(b.loi)}</small></div>${nhan(b)}</div>`).join('')}</div>`:''}
+  <div class="the"><h2>Bài đang hẹn tự đăng</h2>${cho.map(b=>`<div class="dong" onclick="moBai('${esc(b.id)}')"><div style="flex:1;min-width:0"><b>${thuNgay(b.ngay)}, ${esc(b.gio)}</b><small style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(tenNV(b.nvId))}: ${esc(b.noiDung||'Chưa có nội dung')}</small></div>${nhan(b)}</div>`).join('')||'<div class="trong">Chưa có bài nào được hẹn.</div>'}</div>
   <div class="the"><h2>Kết nối Facebook</h2>
   <ol class="hd"><li>Vào developers.facebook.com, tạo ứng dụng, lấy App ID và App Secret.</li><li>Mở Graph API Explorer, chọn ứng dụng, thêm quyền pages_show_list, pages_read_engagement, pages_manage_posts, bấm Generate Access Token và chọn đúng fanpage.</li><li>Dán 3 thông tin vào đây, bấm Kết nối. Khóa được lưu ở Apps Script, không nằm trong web.</li><li>Trong trang ứng dụng, chuyển từ Development sang Live. Nếu chưa chuyển, chỉ người có vai trò trong ứng dụng mới thấy bài.</li></ol>
   <div class="luoi2" style="margin-top:10px"><label>App ID<input id="fbId" autocomplete="off"></label><label>App Secret<input id="fbSecret" type="password" autocomplete="off"></label><label>User Token<input id="fbToken" type="password" autocomplete="off"></label><label>ID trang (chỉ khi có nhiều trang)<input id="fbPage" autocomplete="off"></label></div>
-  <button class="nut chinh" onclick="ketNoiFb(this)">Kết nối</button> <button class="nut" onclick="thuFb()">Kiểm tra</button></div>
-  <div class="the"><h2>Kết nối Claude API (không bắt buộc)</h2><p style="font-size:14px;margin-top:0">Không kết nối vẫn dùng được: bấm Sao chép lệnh cho Claude, dán vào Claude, chép bài về. Kết nối API chỉ để viết bài ngay trong web, trả phí riêng theo lượt dùng.</p><label>Khóa API từ platform.claude.com<input id="aiKey" type="password" autocomplete="off"></label><button class="nut chinh" onclick="luuAi(this)">Lưu và kiểm tra</button></div>`;
+  <button class="nut chinh" onclick="ketNoiFb(this)">Kết nối</button> <button class="nut" onclick="thuFb()">Kiểm tra</button></div>`;
   if(!ketNoi&&API_URL)layKetNoi();
 }
 async function layKetNoi(){try{ketNoi=await api('status');if(tab==='tu-dong')ve()}catch(e){}}
-function duyet(id){const b=db.baiDang.find(x=>x.id===id);chay('savePost',{id,duyet:true,ngay:b.ngay,gio:b.gio,nvId:b.nvId},'Đã duyệt, đến giờ sẽ tự đăng')}
 async function ketNoiFb(n){n.disabled=true;const r=await chay('fbConnect',{appId:$('fbId').value.trim(),appSecret:$('fbSecret').value.trim(),userToken:$('fbToken').value.trim(),pageId:$('fbPage').value.trim()});n.disabled=false;if(r&&r.pageName){toast('Đã kết nối: '+r.pageName);ketNoi={...(ketNoi||{}),fb:r.pageName};ve()}}
 async function thuFb(){const r=await chay('testFb');if(r&&r.pageName)toast('Kết nối tốt: '+r.pageName)}
-async function luuAi(n){n.disabled=true;const r=await chay('saveAiKey',{key:$('aiKey').value});n.disabled=false;if(r){toast('Claude đã kết nối');ketNoi={...(ketNoi||{}),ai:true};ve()}}
 
 /* ===== BẮT ĐẦU ===== */
 (async()=>{
   $('bangDemo').hidden=!!API_URL;
   $('noiDung').innerHTML='<div class="trong">Đang tải...</div>';
   try{db=await api('getData');ve()}catch(e){$('noiDung').innerHTML='<div class="the trong">Không tải được dữ liệu. Kiểm tra link Apps Script.</div>'}
-  if(API_URL)setInterval(async()=>{if($('modal').innerHTML||tab==='phan-lich'||tab==='khai-bao')return;try{db=await api('getData');ve()}catch(e){}},60000);
+  if(API_URL)setInterval(async()=>{if($('modal').innerHTML||tab==='phan-lich'||tab==='khai-bao'||tab==='dang-nhap')return;try{db=await api('getData');ve()}catch(e){}},60000);
 })();
 </script>
 </body>
