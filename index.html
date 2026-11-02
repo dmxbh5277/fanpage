@@ -254,13 +254,16 @@ function demoApi(a,p){
 /* ===== PHÂN LỊCH ===== */
 function xao(ds){const a=ds.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function vongXoay(ds,truocId){
-  let q=[],truoc=truocId;
-  return tranhId=>{
-    if(!q.length){q=xao(ds);if(q.length>1&&q[0].id===truoc)q.push(q.shift())}
+  let q=[],truoc=truocId;const no={};
+  const lay=tranhId=>{
+    if(!q.length){q=xao(ds).filter(x=>{if(no[x.id]){no[x.id]--;return false}return true});if(!q.length)q=xao(ds);if(q.length>1&&q[0].id===truoc)q.push(q.shift())}
     if(tranhId&&ds.length>1&&q.length===1&&q[0].id===tranhId)q.push(...xao(ds));
     let i=tranhId?q.findIndex(x=>x.id!==tranhId):0;if(i<0)i=0;
     const x=q.splice(i,1)[0];truoc=x.id;return x;
   };
+  lay.traLai=x=>q.unshift(x);
+  lay.tinLuot=id=>{const i=q.findIndex(x=>x.id===id);if(i>=0)q.splice(i,1);else no[id]=(no[id]||0)+1;truoc=id};
+  return lay;
 }
 const textChuDe=c=>c?(c.ten+(c.moTa?'\n'+c.moTa:'')):'';
 function taoXoay(d,tu,den,thu,gios){
@@ -274,9 +277,11 @@ function taoXoay(d,tu,den,thu,gios){
     for(const gio of gios){
       const ngay=ymd(c);
       if(giu.some(x=>x.ngay===ngay&&x.gio===gio))continue;
-      const nv=layNV(),cd=layCD?layCD(cuoi[nv.id]):null;
+      let nv=layNV();const cd=layCD?layCD(cuoi[nv.id]):null;
+      const codinh=cd&&dsNV.find(n=>n.id===cd.nvCoDinh);
+      if(codinh&&codinh.id!==nv.id){layNV.traLai(nv);nv=codinh;layNV.tinLuot(nv.id)}
       if(cd)cuoi[nv.id]=cd.id;
-      kq.push({ngay,gio,nvId:nv.id,chuDe:textChuDe(cd)});
+      kq.push({ngay,gio,nvId:nv.id,chuDe:textChuDe(cd),coDinh:!!codinh});
     }
   }
   return kq;
@@ -396,9 +401,9 @@ function vePhanLich(){
   if(canQL())return;
   const n=new Date(),th=n.getFullYear()+'-'+pad(n.getMonth()+1);
   const thu=[[1,'T2'],[2,'T3'],[3,'T4'],[4,'T5'],[5,'T6'],[6,'T7'],[0,'CN']];
-  const nv=db.nhanVien.filter(x=>x.hoatDong).length,cd=(db.chuDe||[]).filter(x=>x.hoatDong).length;
+  const nv=db.nhanVien.filter(x=>x.hoatDong).length,cd=(db.chuDe||[]).filter(x=>x.hoatDong).length,cdCo=(db.chuDe||[]).filter(x=>x.hoatDong&&db.nhanVien.some(n=>n.hoatDong&&n.id===x.nvCoDinh)).length;
   $('noiDung').innerHTML=`<div class="the"><h2>Chọn tháng và ngày đăng</h2>
-  <p style="color:var(--mo);font-size:14px;margin-top:0">Đang có ${nv} nhân viên và ${cd} chủ đề. Web chọn ngẫu nhiên, nhưng phải đủ một vòng mới lặp lại người hoặc chủ đề.</p>
+  <p style="color:var(--mo);font-size:14px;margin-top:0">Đang có ${nv} nhân viên và ${cd} chủ đề, trong đó ${cdCo} chủ đề cố định người. Web chọn ngẫu nhiên, nhưng phải đủ một vòng mới lặp lại người hoặc chủ đề.</p>
   <div class="luoi2"><label>Tháng<input type="month" id="xThang" value="${th}"></label><label>Khung giờ (đổi ở tab Khai báo)<input value="${gioDS().join(', ')}" readonly></label></div>
   <div class="hang">${thu.map(([v,t])=>`<label class="chon"><input type="checkbox" class="xThu" value="${v}" checked>${t}</label>`).join('')}</div>
   <button class="nut chinh" onclick="xemXoay()">Tự động phân lịch</button><div id="xKq" style="margin-top:12px"></div></div>`;
@@ -420,7 +425,7 @@ function xemXoay(){
   const a=Math.min(...Object.values(dem)),b=Math.max(...Object.values(dem));
   $('xKq').innerHTML=`<p>Tạo <b>${ds.length}</b> bài cho ${Object.keys(dem).length} nhân viên, mỗi người ${a===b?a:a+'–'+b} bài. Bài đã đăng hoặc đã có nội dung được giữ nguyên.</p>
   <div class="hang" style="margin-bottom:10px"><button class="nut chinh" onclick="luuXoay(this)">Lưu vào lịch</button><button class="nut" onclick="xemXoay()">Xáo lại</button></div>
-  <table><tr><th>Ngày</th><th>Giờ</th><th>Nhân viên</th><th>Chủ đề</th></tr>${ds.map(b=>`<tr><td>${dmy(b.ngay).slice(0,5)}</td><td>${b.gio}</td><td>${esc(tenNV(b.nvId))}</td><td>${esc(b.chuDe.split('\n')[0])}</td></tr>`).join('')}</table>`;
+  <table><tr><th>Ngày</th><th>Giờ</th><th>Nhân viên</th><th>Chủ đề</th></tr>${ds.map(b=>`<tr><td>${dmy(b.ngay).slice(0,5)}</td><td>${b.gio}</td><td>${esc(tenNV(b.nvId))}</td><td>${esc(b.chuDe.split('\n')[0])}${b.coDinh?' <span class="nhan s-tao">Cố định</span>':''}</td></tr>`).join('')}</table>`;
 }
 async function luuXoay(n){n.disabled=true;const r=await chay('replaceRange',banXoay,'Đã lưu vào lịch');if(r){const[y,m]=banXoay.from.split('-').map(Number);thang=new Date(y,m-1,1);tab='lich';ve()}else n.disabled=false}
 
@@ -431,7 +436,7 @@ function veKhaiBao(){
   if(kbTab==='gio')return veKhungGio();
   const cfg={
     nv:{tieuDe:'Nhân viên',ghiChu:'Bỏ tick với người nghỉ dài ngày, phân lịch sẽ bỏ qua người đó.',ds:db.nhanVien,cot1:'Tên nhân viên',cot2:''},
-    cd:{tieuDe:'Chủ đề',ghiChu:'Mô tả là phần không bắt buộc, giúp Claude viết đúng ý hơn. Chỉ ghi giá và khuyến mãi khi còn đúng.',ds:db.chuDe,cot1:'Tên chủ đề',cot2:'Mô tả ngắn'},
+    cd:{tieuDe:'Chủ đề',ghiChu:'Chọn nhân viên cố định nếu chủ đề luôn do một người đăng, để Xoay vòng nếu chia cho mọi người. Mô tả không bắt buộc, chỉ ghi giá và khuyến mãi khi còn đúng.',ds:db.chuDe,cot1:'Tên chủ đề',cot2:'Mô tả ngắn'},
     nh:{tieuDe:'Hội nhóm',ghiChu:'Dán link nhóm Facebook. Tài khoản đăng bài phải là thành viên của nhóm.',ds:db.nhom,cot1:'Tên nhóm',cot2:'https://www.facebook.com/groups/...'}
   }[kbTab];
   $('noiDung').innerHTML=`${nutKB()}<div class="the"><h2>${cfg.tieuDe} (${cfg.ds.length})</h2><p style="color:var(--mo);font-size:13px;margin-top:0">${cfg.ghiChu}</p><div id="dsKB">${cfg.ds.map(o=>hangKB(o,cfg)).join('')}</div><div class="hang"><button class="nut" id="kbThem">Thêm dòng</button><button class="nut chinh" onclick="luuKB()">Lưu ${cfg.tieuDe.toLowerCase()}</button></div></div>`;
@@ -450,10 +455,11 @@ function luuGio(){
 function hangKB(o,cfg){
   const k2=kbTab==='cd'?'moTa':'link';
   const st='min-width:0;padding:8px 10px;border:1px solid var(--vien);border-radius:7px';
-  return`<div class="hang hkb" data-id="${esc(o.id)}" style="margin-bottom:8px;flex-wrap:nowrap"><input class="k1" value="${esc(o.ten||'')}" placeholder="${esc(cfg.cot1)}" aria-label="${esc(cfg.cot1)}" style="flex:1;${st}">${cfg.cot2?`<input class="k2" value="${esc(o[k2]||'')}" placeholder="${esc(cfg.cot2)}" aria-label="${esc(cfg.cot2)}" style="flex:2;${st}">`:''}<label class="chon" style="margin:0"><input type="checkbox" class="k3" ${o.hoatDong?'checked':''}>Dùng</label></div>`;
+  const chon=kbTab==='cd'?`<select class="k4" aria-label="Người đăng chủ đề này" style="flex:1 1 150px;${st};background:var(--the)"><option value="">Xoay vòng</option>${db.nhanVien.map(n=>`<option value="${esc(n.id)}" ${n.id===o.nvCoDinh?'selected':''}>${esc(n.ten)}${n.hoatDong?'':' (đang nghỉ)'}</option>`).join('')}</select>`:'';
+  return`<div class="hang hkb" data-id="${esc(o.id)}" style="margin-bottom:8px;flex-wrap:${kbTab==='cd'?'wrap':'nowrap'}"><input class="k1" value="${esc(o.ten||'')}" placeholder="${esc(cfg.cot1)}" aria-label="${esc(cfg.cot1)}" style="flex:1 1 150px;${st}">${cfg.cot2?`<input class="k2" value="${esc(o[k2]||'')}" placeholder="${esc(cfg.cot2)}" aria-label="${esc(cfg.cot2)}" style="flex:2 1 180px;${st}">`:''}${chon}<label class="chon" style="margin:0"><input type="checkbox" class="k3" ${o.hoatDong?'checked':''}>Dùng</label></div>`;
 }
 function luuKB(){
-  const ds=[...document.querySelectorAll('.hkb')].map(h=>{const o={id:h.dataset.id,ten:h.querySelector('.k1').value.trim(),hoatDong:h.querySelector('.k3').checked};const v=(h.querySelector('.k2')||{}).value;if(kbTab==='cd')o.moTa=(v||'').trim();if(kbTab==='nh')o.link=(v||'').trim();return o}).filter(o=>o.ten);
+  const ds=[...document.querySelectorAll('.hkb')].map(h=>{const o={id:h.dataset.id,ten:h.querySelector('.k1').value.trim(),hoatDong:h.querySelector('.k3').checked};const v=(h.querySelector('.k2')||{}).value;if(kbTab==='cd'){o.moTa=(v||'').trim();o.nvCoDinh=h.querySelector('.k4').value}if(kbTab==='nh')o.link=(v||'').trim();return o}).filter(o=>o.ten);
   if(kbTab==='nv')return chay('saveStaff',{nhanVien:ds},'Đã lưu nhân viên');
   if(kbTab==='cd')return chay('saveTopics',{chuDe:ds},'Đã lưu chủ đề');
   const sai=ds.find(o=>!/^https?:\/\/(www\.|m\.|web\.)?facebook\.com\//i.test(o.link));
