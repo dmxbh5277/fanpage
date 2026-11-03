@@ -391,18 +391,6 @@ dialog h2{margin-bottom:14px;font-size:18px;line-height:24px;font-weight:700}
   </div>
 </dialog>
 
-<dialog id="loginDlg">
-  <h2>Đăng nhập quản lý</h2>
-  <form id="loginForm">
-    <label class="field">Mật khẩu
-      <input id="loginPass" type="password" autocomplete="off">
-    </label>
-    <div class="dlg-row">
-      <button class="btn" type="button" id="closeLogin">Đóng</button>
-      <button class="btn primary" type="submit">Vào</button>
-    </div>
-  </form>
-</dialog>
 
 <dialog id="storeDlg">
   <h2>Khai báo siêu thị</h2>
@@ -449,10 +437,10 @@ dialog h2{margin-bottom:14px;font-size:18px;line-height:24px;font-weight:700}
 <div id="toast" role="status"></div>
 
 <script>
-/* LINK APPS SCRIPT DÙNG CHUNG VỚI LỊCH ĐĂNG BÀI */
-const API_URL = "https://script.google.com/macros/s/AKfycbzaIm8pj8TKSzdbmXsbPXYGlsR8FgQ8FIfz9cYE_ibJPfS2ChvxVXjdoQiYy88GZWFV/exec";
-
-const LOCAL_PASS = "1234";
+/* KẾT NỐI FIREBASE */
+const FB_CONFIG={apiKey:"AIzaSyBhNVGV-AXhMWnBY_WdYTtjpOljuTeWl4Y",authDomain:"cvst-7aa9d.firebaseapp.com",projectId:"cvst-7aa9d",storageBucket:"cvst-7aa9d.firebasestorage.app",messagingSenderId:"795231953740",appId:"1:795231953740:web:ef3c43a7ac4ec3cef725e9"};
+const FB_SDK="https://www.gstatic.com/firebasejs/11.10.0/";
+const QUAN_LY=["dienmayxanhbh.5277@gmail.com"];
 const DAYS = ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","CN"];
 const COLORS = {trang:"Xanh dương",kem:"Cam nhạt",xanh:"Xanh lá",vang:"Vàng",do:"Đỏ"};
 const BUOI = {S:"Sáng",C:"Chiều"};
@@ -500,114 +488,119 @@ function weeks(){
 let toastTimer;
 function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),3000)}
 
-/* ---------- Lưu trên máy này (khi chưa dán link Apps Script) ---------- */
+/* ---------- Firebase ---------- */
 const GIO_MAC_DINH=[{so:"1",gio:1},{so:"2",gio:3},{so:"3",gio:3},{so:"4",gio:3},{so:"5",gio:2}];
 const CA_MAC_DINH=[{ma:"123",mau:"trang"},{ma:"45",mau:"trang"},{ma:"2345",mau:"trang"},{ma:"12345",mau:"trang"},{ma:"OFF",mau:"do"}];
-function seed(){return {stores:[],emp:{},data:{},codes:{},units:{},plans:[],checks:{}}}
-function readStore(){
-  let d=null;
-  try{const s=localStorage.getItem(STORE_KEY);if(s)d=JSON.parse(s)}catch(e){}
-  d=d||seed();
-  if(Array.isArray(d.codes)){const goc=d.codes;d.codes={};d.stores.forEach(s=>d.codes[s.ma]=goc.map(c=>({...c})))}
-  d.units=d.units||{};d.plans=d.plans||[];d.checks=d.checks||{};return d;
+const fb={key:null,huy:[],stores:null,sts:null,tuan:{},plans:null};
+let F,db,auth,A;
+async function fbMo(){
+  const [app,fs,au]=await Promise.all([import(FB_SDK+"firebase-app.js"),import(FB_SDK+"firebase-firestore.js"),import(FB_SDK+"firebase-auth.js")]);
+  F=fs;A=au;
+  const a=app.initializeApp(FB_CONFIG);
+  try{db=F.initializeFirestore(a,{ignoreUndefinedProperties:true,localCache:F.persistentLocalCache({tabManager:F.persistentMultipleTabManager()})})}
+  catch(e){db=F.getFirestore(a)}
+  auth=A.getAuth(a);
+  A.onAuthStateChanged(auth,u=>{
+    const ok=u&&QUAN_LY.includes(u.email);
+    state.pw=ok?u.email:null;
+    if(u&&!ok){toast("Tài khoản này không có quyền quản lý");A.signOut(auth)}
+    render();
+  });
+  F.onSnapshot(F.doc(db,"config","stores"),x=>{fb.stores=(x.data()||{}).list||[];fbLuon()},fbLoi);
+  F.onSnapshot(F.collection(db,"st"),x=>{const m={};x.forEach(d=>m[d.id]=d.data());fb.sts=m;fbApply()},fbLoi);
 }
-function writeStore(d){try{localStorage.setItem(STORE_KEY,JSON.stringify(d))}catch(e){throw new Error("Không lưu được trên máy này")}}
-function bucket(d,st){return d.data[st]=d.data[st]||{cells:{},locks:{}}}
-function localLoad(q){
-  const d=readStore(),st=d.stores.some(s=>s.ma===q.st)?q.st:(d.stores[0]?d.stores[0].ma:"");
-  const x=bucket(d,st),cells={},locks={},checks={},rsEmp={},plans=d.plans.filter(p=>p.month===q.month);
-  Object.keys(x.cells).forEach(k=>{const dt=k.split("|")[1];if(dt>=q.from&&dt<=q.to)cells[k]=x.cells[k]});
-  Object.keys(x.locks).forEach(k=>{if(k>=q.from&&k<=q.to)locks[k]=true});
-  Object.keys(d.checks).forEach(k=>{if(plans.some(p=>p.id===k.split("|")[0]))checks[k]=true});
-  d.stores.forEach(s=>rsEmp[s.ma]=d.emp[s.ma]||[]);
-  return {st,stores:d.stores,employees:d.emp[st]||[],codes:d.codes[st]||[],units:d.units[st]||(st?GIO_MAC_DINH:[]),cells,locks,rsPlans:plans,rsChecks:checks,rsEmp};
+function fbLoi(e){console.error(e);fb.key=null;state.failed=true;if(!state.loaded)render()}
+async function fbDangNhap(){
+  await A.signInWithPopup(auth,new A.GoogleAuthProvider());
 }
-function localPost(b){
-  const d=readStore(),m=b.pw===LOCAL_PASS;
-  if(b.action==="login"){if(!m)throw new Error("Sai mật khẩu");return {}}
-  if(["setLock","saveStores","saveEmployees","saveCodes","rsSave","rsDelete","rsSetCost","rsSetLock"].includes(b.action)&&!m)throw new Error("Cần đăng nhập quản lý");
-  const x=bucket(d,b.st),plan=d.plans.find(p=>p.id===b.id);
-  if(b.action==="setCell"){
-    if(!m&&x.locks[ymd(mondayOf(parse(b.date)))])throw new Error("Tuần này đã khóa");
-    if(b.code)x.cells[key(b.name,b.date)]=b.code;else delete x.cells[key(b.name,b.date)];
-  }
-  if(b.action==="setCells"){
-    if(!m&&b.cells.some(c=>x.locks[ymd(mondayOf(parse(c.date)))]))throw new Error("Tuần này đã khóa");
-    b.cells.forEach(c=>{if(c.code)x.cells[key(c.name,c.date)]=c.code;else delete x.cells[key(c.name,c.date)]});
-  }
-  if(b.action==="setLock"){if(b.locked)x.locks[b.week]=true;else delete x.locks[b.week]}
-  if(b.action==="saveStores"){
-    d.stores=b.stores;
-    b.stores.forEach(s=>{if(!(d.codes[s.ma]||[]).length)d.codes[s.ma]=CA_MAC_DINH.map(c=>({...c}))});
-  }
-  if(b.action==="saveEmployees")d.emp[b.st]=b.employees;
-  if(b.action==="saveCodes"){d.codes[b.st]=b.codes;d.units[b.st]=b.units}
-  if(b.action==="rsSave"){
-    if(plan){plan.dates=b.dates;plan.stores=b.stores}
-    else d.plans.push({id:b.id,month:b.month,cost:0,locked:false,dates:b.dates,stores:b.stores});
-    Object.keys(d.checks).forEach(k=>{const a=k.split("|");if(a[0]===b.id&&!(b.dates.includes(a[1])&&b.stores.includes(a[2])))delete d.checks[k]});
-  }
-  if(b.action==="rsDelete"){
-    d.plans=d.plans.filter(p=>p.id!==b.id);
-    Object.keys(d.checks).forEach(k=>{if(k.startsWith(b.id+"|"))delete d.checks[k]});
-  }
-  if(b.action==="rsToggle"){
-    if(!m&&plan.locked)throw new Error("Lịch chạy này đã khóa");
-    const k=[b.id,b.date,b.tickSt,b.name,b.buoi].join("|");if(b.on)d.checks[k]=true;else delete d.checks[k];
-  }
-  if(b.action==="bangLoad"||b.action==="bangSave"||b.action==="bangDelete"||b.action==="bangCols"){
-    if((b.action==="bangDelete"||b.action==="bangCols")&&!m)throw new Error("Cần đăng nhập quản lý");
-    d.bang=d.bang||{};const x2=d.bang[b.st]=d.bang[b.st]||{cols:[],rows:[]};
-    if(b.action==="bangLoad")return {cols:x2.cols,rows:x2.rows.filter(r=>r.month===b.month)};
-    if(b.action==="bangCols")x2.cols=b.cols;
-    if(b.action==="bangDelete")x2.rows=x2.rows.filter(r=>r.id!==b.id);
-    if(b.action==="bangSave")b.rows.forEach(r=>{const o=x2.rows.find(y=>y.id===r.id);if(o)o.data=r.data;else x2.rows.push({id:r.id,month:b.month,data:r.data})});
-    writeStore(d);return {};
-  }
-  if(b.action==="quyLoad"||b.action==="quySave"||b.action==="quyDelete"){
-    if(b.action==="quyDelete"&&!m)throw new Error("Cần đăng nhập quản lý");
-    const ds=d.quy=d.quy||[];
-    if(b.action==="quyLoad"){
-      const mine=ds.filter(r=>r.st===b.st);let tonDau=0;
-      mine.forEach(r=>{if(r.ngay<b.month+"-01")tonDau+=r.loai==="Thu"?r.soTien:-r.soTien});
-      return {tonDau,rows:mine.filter(r=>r.ngay.startsWith(b.month)).sort((x,y)=>x.ngay.localeCompare(y.ngay))};
+function fbLuon(){
+  if(!fb.stores)return;
+  if(!fb.stores.some(s=>s.ma===state.st))rememberStore(fb.stores[0]?fb.stores[0].ma:"");
+  const ds=weeks().map(ymd),m=ym(),k=[state.st,m,ds.join()].join("|");
+  if(k===fb.key){fbApply();return}
+  fb.key=k;fb.huy.forEach(x=>x());fb.huy=[];fb.tuan={};fb.plans=null;
+  fb.huy.push(F.onSnapshot(F.query(F.collection(db,"rsKe"),F.where("month","==",m)),x=>{fb.plans=[];x.forEach(d=>fb.plans.push({id:d.id,...d.data()}));fbApply()},fbLoi));
+  if(state.st)ds.forEach(w=>fb.huy.push(F.onSnapshot(F.doc(db,"st",state.st,"tuan",w),x=>{fb.tuan[w]=x.data()||{};fbApply()},fbLoi)));
+  fbApply();
+}
+function fbApply(){
+  if(!fb.stores||!fb.sts||!fb.plans)return;
+  const ds=weeks().map(ymd);
+  if(state.st&&ds.some(w=>!fb.tuan[w]))return;
+  if(state.pending>0)return;
+  const me=fb.sts[state.st]||{},cells={},locks={},checks={},rsEmp={};
+  ds.forEach(w=>{const t=fb.tuan[w]||{};Object.assign(cells,t.cells||{});if(t.locked)locks[w]=true});
+  fb.plans.forEach(p=>Object.keys(p.checks||{}).forEach(k=>{if(p.checks[k])checks[p.id+"|"+k]=true}));
+  fb.stores.forEach(s=>rsEmp[s.ma]=(fb.sts[s.ma]||{}).employees||[]);
+  Object.assign(state,{stores:fb.stores,units:me.units&&me.units.length?me.units:GIO_MAC_DINH,employees:me.employees||[],codes:me.codes&&me.codes.length?me.codes:CA_MAC_DINH,cells,locks,
+    rsPlans:fb.plans.map(p=>({id:p.id,month:p.month,dates:p.dates||[],stores:p.stores||[],cost:p.cost||0,locked:!!p.locked})),rsChecks:checks,rsEmp,loaded:true,failed:false});
+  apNhap();
+  const a=document.activeElement,go=a&&/INPUT|SELECT|TEXTAREA/.test(a.tagName)&&!a.classList.contains("store-sel")&&$("view").contains(a);
+  if(!go)render();
+}
+function load(){fbLuon()}
+function hen(p){return Promise.race([p,new Promise((_,no)=>setTimeout(()=>no(new Error("mang")),20000))])}
+const stDoc=(st,...p)=>F.doc(db,"st",st,...p);
+async function fbCells(st,cells){
+  const nhom={};cells.forEach(c=>{const w=ymd(mondayOf(parse(c.date)));(nhom[w]=nhom[w]||{})[c.name+"|"+c.date]=c.code||F.deleteField()});
+  const b=F.writeBatch(db);Object.keys(nhom).forEach(w=>b.set(stDoc(st,"tuan",w),{cells:nhom[w]},{merge:true}));
+  await b.commit();
+}
+async function apiPost(b){
+  const st=b.st||state.st,X=F.deleteField;
+  switch(b.action){
+    case "setCells":return fbCells(st,b.cells);
+    case "setLock":return F.setDoc(stDoc(st,"tuan",b.week),{locked:!!b.locked},{merge:true});
+    case "saveStores":return F.setDoc(F.doc(db,"config","stores"),{list:b.stores});
+    case "saveEmployees":return F.setDoc(stDoc(st),{employees:b.employees},{merge:true});
+    case "saveCodes":return F.setDoc(stDoc(st),{codes:b.codes,units:b.units},{merge:true});
+    case "bangCols":return F.setDoc(stDoc(st),{bangCols:b.cols},{merge:true});
+    case "quyLoad":{
+      const x=await F.getDocs(F.collection(db,"st",st,"quy"));let tonDau=0,rows=[];
+      x.forEach(d=>{
+        const ds=Object.values(d.data().rows||{});
+        if(d.id<b.month)ds.forEach(r=>tonDau+=r.loai==="Thu"?r.soTien:-r.soTien);
+        if(d.id===b.month)rows=ds;
+      });
+      rows.sort((p,q)=>p.ngay.localeCompare(q.ngay)||String(p.t).localeCompare(String(q.t)));
+      return {tonDau,rows};
     }
-    d.quy=ds.filter(r=>r.id!==b.id);
-    if(b.action==="quySave")d.quy.push({id:b.id,st:b.st,ngay:b.ngay,loai:b.loai,noiDung:b.noiDung,soTien:b.soTien,ghiChu:b.ghiChu});
+    case "quySave":return F.setDoc(stDoc(st,"quy",b.ngay.slice(0,7)),{rows:{[b.id]:{id:b.id,ngay:b.ngay,loai:b.loai,noiDung:b.noiDung,soTien:b.soTien,ghiChu:b.ghiChu||"",t:Date.now()}}},{merge:true});
+    case "quyDelete":return F.setDoc(stDoc(st,"quy",ym()),{rows:{[b.id]:X()}},{merge:true});
+    case "bangLoad":{
+      const x=await F.getDoc(stDoc(st,"bang",b.month)),r=(x.data()||{}).rows||{};
+      return {cols:(fb.sts[st]||{}).bangCols||[],rows:Object.keys(r).map(id=>({id,data:r[id].data||{},t:r[id].t||0})).sort((p,q)=>p.t-q.t)};
+    }
+    case "bangSave":{
+      const o={};b.rows.forEach((r,i)=>o[r.id]={data:r.data,t:r.t||Date.now()+i});
+      return F.setDoc(stDoc(st,"bang",b.month),{rows:o},{merge:true});
+    }
+    case "bangDelete":return F.setDoc(stDoc(st,"bang",ym()),{rows:{[b.id]:X()}},{merge:true});
+    case "rsSave":{
+      const r=F.doc(db,"rsKe",b.id),cu=state.rsPlans.some(p=>p.id===b.id);
+      if(!cu)return F.setDoc(r,{month:b.month,dates:b.dates,stores:b.stores,cost:0,locked:false,checks:{}});
+      const giu={};Object.keys(state.rsChecks).forEach(k=>{const a=k.split("|");if(a[0]===b.id&&b.dates.includes(a[1])&&b.stores.includes(a[2]))giu[a.slice(1).join("|")]=true});
+      return F.updateDoc(r,{dates:b.dates,stores:b.stores,checks:giu});
+    }
+    case "rsDelete":return F.deleteDoc(F.doc(db,"rsKe",b.id));
+    case "rsToggle":{
+      const k=[b.date,b.tickSt,b.name,b.buoi].join("|");
+      return F.setDoc(F.doc(db,"rsKe",b.id),{checks:{[k]:b.on?true:X()}},{merge:true});
+    }
+    case "rsSetCost":return F.updateDoc(F.doc(db,"rsKe",b.id),{cost:b.cost});
+    case "rsSetLock":return F.updateDoc(F.doc(db,"rsKe",b.id),{locked:b.locked});
   }
-  if(b.action==="rsSetCost")plan.cost=b.cost;
-  if(b.action==="rsSetLock")plan.locked=b.locked;
-  writeStore(d);return {};
-}
-
-/* ---------- Kết nối ---------- */
-async function apiLoad(q){
-  if(!API_URL)return localLoad(q);
-  const r=await fetch(API_URL+"?app=phanca&st="+encodeURIComponent(q.st)+"&from="+q.from+"&to="+q.to+"&month="+q.month);
-  const j=await r.json();if(!j.ok)throw new Error(j.error||"Lỗi tải dữ liệu");return j;
-}
-async function apiPost(body){
-  body.pw=body.pw||state.pw;body.st=body.st||state.st;body.app="phanca";
-  if(!API_URL)return localPost(body);
-  const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body)});
-  const j=await r.json();if(!j.ok)throw new Error(j.error||"Lỗi lưu dữ liệu");return j;
+  throw new Error("Yêu cầu không hợp lệ");
 }
 async function send(body,okMsg){
   state.pending++;
-  try{const r=await apiPost(body);if(okMsg)toast(okMsg);return r||{}}
-  catch(e){toast(/lock|fetch/i.test(e.message||"")?"Hệ thống đang bận, dữ liệu vẫn còn, hãy bấm Lưu lại":e.message||"Chưa lưu được, thử lại sau");return null}
-  finally{state.pending--}
-}
-async function load(silent){
-  const id=++state.loadId,w=weeks();
-  try{
-    const d=await apiLoad({st:state.st,from:ymd(w[0]),to:ymd(addDays(w[w.length-1],6)),month:ym()});
-    if(id!==state.loadId||state.pending>0)return;
-    rememberStore(d.st);
-    Object.assign(state,{stores:d.stores,units:d.units,employees:d.employees,codes:d.codes,cells:d.cells,locks:d.locks,rsPlans:d.rsPlans,
-      rsChecks:d.rsChecks,rsEmp:d.rsEmp,loaded:true,failed:false});
-    apNhap();render();
-  }catch(e){if(id===state.loadId&&!silent){state.failed=true;render()}}
+  try{const r=await hen(apiPost(body));if(okMsg)toast(okMsg);return r||{}}
+  catch(e){
+    const m=String(e.code||e.message||"");
+    toast(/permission/.test(m)?"Không có quyền, hoặc tuần/lịch này đã khóa":m==="mang"||/unavailable/.test(m)?"Mạng yếu, dữ liệu vẫn còn, hãy thử lại":"Chưa lưu được, thử lại sau");
+    return null;
+  }
+  finally{state.pending--;if(!state.pending)setTimeout(fbApply,0)}
 }
 
 /* ---------- Giao diện ---------- */
@@ -661,7 +654,7 @@ function stateBlock(v){
   const p=el("section","panel");
   if(state.failed){
     const e=el("p","empty","Chưa tải được dữ liệu.");e.style.marginTop="16px";
-    e.append(el("br"),btn("btn","Thử lại",()=>{state.failed=false;render();load()}));p.append(e);
+    e.append(el("br"),btn("btn","Thử lại",()=>{state.failed=false;fb.key=null;render();load()}));p.append(e);
   }else{const e=el("p","empty","Đang tải lịch…");e.style.marginTop="16px";p.append(e)}
   v.append(p);
 }
@@ -1214,7 +1207,7 @@ async function loadBang(){
   try{
     const d=await apiPost({action:"bangLoad",month:m});
     if(m!==ym()||st!==state.st||state.tab!=="bang")return;
-    state.bang={cols:d.cols.length?d.cols:BANG_MAU.map(c=>({...c})),rows:d.rows.map(r=>({id:r.id,data:r.data,saved:true}))};
+    state.bang={cols:d.cols.length?d.cols:BANG_MAU.map(c=>({...c})),rows:d.rows.map(r=>({id:r.id,data:r.data,t:r.t,saved:true}))};
     render();
   }catch(e){toast(e.message||"Chưa tải được bảng")}
 }
@@ -1228,7 +1221,7 @@ async function bangLuu(){
   nhom.forEach(([k])=>bangBan.ids.delete(k));bangBan.dang=true;
   let hong=false;
   try{
-    await apiPost({action:"bangSave",st:dau.st,month:dau.month,rows:nhom.map(([k,v])=>({id:k,data:v.r.data}))});
+    await apiPost({action:"bangSave",st:dau.st,month:dau.month,rows:nhom.map(([k,v])=>({id:k,data:v.r.data,t:v.r.t||(v.r.t=Date.now())}))});
     nhom.forEach(([k,v])=>v.r.saved=true);
   }catch(e){
     hong=true;nhom.forEach(([k,v])=>{if(!bangBan.ids.has(k))bangBan.ids.set(k,v)});
@@ -1472,17 +1465,11 @@ async function setRsLock(p,locked){
 }
 
 /* ---------- Quản lý ---------- */
-function needMgr(fn){
+async function needMgr(fn){
   if(state.pw){fn();return}
-  state.after=fn;$("loginPass").value="";$("loginDlg").showModal();
-}
-async function login(e){
-  e.preventDefault();
-  const pw=$("loginPass").value;
-  if(await send({action:"login",pw})){
-    state.pw=pw;$("loginDlg").close();render();
-    const fn=state.after;state.after=null;if(fn)fn();
-  }
+  try{await fbDangNhap()}catch(e){if(!/popup-closed|cancelled/.test(String(e.code)))toast("Chưa đăng nhập được, thử lại");return}
+  for(let i=0;i<20&&!state.pw&&auth.currentUser;i++)await new Promise(r=>setTimeout(r,50));
+  if(state.pw)fn();
 }
 function addCodeRow(ma,mau){
   const r=el("div","code-row"),inp=el("input");inp.value=ma||"";inp.placeholder="VD: 123_TN";inp.setAttribute("aria-label","Mã ca");inp.oninput=refreshHours;
@@ -1613,9 +1600,7 @@ $("bangAddCol").onclick=()=>bangHangCot({});
 $("bangClose").onclick=()=>$("bangDlg").close();
 $("bangSaveCols").onclick=bangLuuCot;
 window.addEventListener("beforeunload",e=>{if(bangBan.ids.size){bangLuu();e.preventDefault()}});
-$("mgr").onclick=()=>{if(state.pw){state.pw=null;if(state.tab==="tk")state.tab="ca";render()}else needMgr(()=>{})};
-$("loginForm").onsubmit=login;
-$("closeLogin").onclick=()=>$("loginDlg").close();
+$("mgr").onclick=()=>{if(state.pw){A.signOut(auth);if(state.tab==="tk")state.tab="ca"}else needMgr(()=>{})};
 $("closePick").onclick=()=>$("picker").close();
 $("caKhac").oninput=caKhacGio;
 $("caKhacForm").onsubmit=e=>{e.preventDefault();const v=$("caKhac").value.trim();if(!v){toast("Chưa nhập ca");return}choose(v)};
@@ -1637,13 +1622,15 @@ $("saveCode").onclick=saveCode;
   const now=new Date(),t=now.getDay()===0?addDays(mondayOf(now),7):mondayOf(now);
   try{state.st=localStorage.getItem(ST_KEY)||""}catch(e){}
   state.year=t.getFullYear();state.month=t.getMonth();state.week=ymd(t);
-  render();load();
+  render();
+  fbMo().catch(e=>{console.error(e);state.failed=true;render()});
 })();
-/* Tự cập nhật mỗi 30 giây để thấy thay đổi của người khác */
-if(API_URL)setInterval(()=>{
-  const busy=state.sel.size||state.rsDraft||document.querySelector("dialog[open]")||document.activeElement.tagName==="INPUT"||document.activeElement.tagName==="SELECT";
-  if(!document.hidden&&!state.pending&&!busy&&state.tab!=="db"){if(state.tab==="quy")loadQuy();else if(state.tab==="bang"){if(!bangBan.ids.size)loadBang()}else load(true)}
-},30000);
+/* Quỹ và Nhập liệu tự cập nhật mỗi phút */
+setInterval(()=>{
+  const busy=document.querySelector("dialog[open]")||/INPUT|SELECT/.test(document.activeElement.tagName);
+  if(document.hidden||state.pending||busy)return;
+  if(state.tab==="quy")loadQuy();else if(state.tab==="bang"&&!bangBan.ids.size)loadBang();
+},60000);
 </script>
 </body>
 </html>
