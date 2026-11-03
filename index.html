@@ -276,19 +276,75 @@ dialog h2{margin-bottom:14px;font-size:18px;line-height:24px;font-weight:700}
   .sum th:last-child,.sum td:last-child{padding-right:16px}
 }
 @media (max-width:380px){.tab{padding:0 3px;font-size:12px}.tab[aria-current]::after{left:3px;right:3px}.topbar-in{gap:4px;padding:0 8px}#mgr{padding:0 6px;font-size:12px}}
+.tic{display:none}
+.tab[hidden]{display:none!important}
+.mhead{display:flex;flex-direction:column;gap:10px;margin-bottom:10px}
+.mtop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.mtop .store-sel{flex:0 1 190px;min-width:0;width:auto;height:40px;font-size:14px}
+.mseg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;padding:3px;border-radius:8px;background:var(--active)}
+.mseg button{height:40px;border:0;border-radius:6px;background:none;color:var(--muted);font-weight:500}
+.mseg button[aria-pressed=true]{background:var(--surface);color:var(--text);font-weight:700}
+.mweek{display:flex;align-items:center;justify-content:space-between;height:44px;border-radius:8px;background:var(--raised)}
+.mweek button{width:44px;height:44px;border:0;background:none;font-size:20px}
+.mweek b{font-size:15px}
+.mact{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.mact .btn{height:40px;flex:1}
+.mnote{color:var(--muted);font-size:13px}
+.ma{margin:0 -16px;background:var(--surface);border-top:1px solid var(--border)}
+.ma-row{display:grid;grid-template-columns:86px repeat(7,minmax(0,1fr)) 30px;align-items:center;padding:0 8px 0 12px;border-bottom:1px solid var(--rule)}
+.ma-head{height:42px;color:var(--muted);font-size:12px;line-height:15px;text-align:center}
+.ma-head button{padding:0;border:0;background:none;color:inherit;font-size:12px;line-height:15px}
+.ma-head .now{color:var(--blue);font-weight:700}
+.ma-name{padding:0;border:0;background:none;font-size:13px;font-weight:500;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ma-cell{display:flex;align-items:center;justify-content:center;height:40px;margin:3px .5px;padding:0;border:0;border-radius:4px;font-size:11px;letter-spacing:-.3px;line-height:12px;font-weight:500;overflow:hidden;white-space:nowrap}
+.ma-cell.dai{white-space:normal;overflow-wrap:anywhere;font-size:10.5px}
+.ma-cell.none{background:var(--ground);color:var(--muted)}
+.ma-cell.picked{box-shadow:inset 0 0 0 2px var(--ink)}
+.ma-gio{text-align:right;font-size:14px;font-weight:700}
+.mdays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.mdays button{height:52px;padding:0;border:0;border-radius:8px;background:var(--raised)}
+.mdays span{display:block;font-size:12px;line-height:16px}
+.mdays b{display:block;font-size:16px;line-height:22px}
+.mdays button[aria-pressed=true]{background:var(--ink);color:#fff}
+.msum{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.msum b{font-size:15px}
+.mb{margin:0 -16px;border-top:1px solid var(--border);background:var(--surface)}
+.mb-row{display:grid;grid-template-columns:96px minmax(0,1fr) 30px;gap:8px;align-items:center;width:100%;min-height:48px;padding:0 16px;border:0;border-bottom:1px solid var(--rule);background:none;text-align:left}
+.mb-axis{min-height:26px;color:var(--muted);font-size:12px}
+.mb-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lane{position:relative;display:block;height:28px;border-radius:4px;background:var(--raised);overflow:hidden}
+.lane i{position:absolute;top:0;bottom:0}
+.lane b{position:absolute;top:0;bottom:0;left:0;right:0;display:flex;align-items:center;justify-content:center;font-size:13px;white-space:nowrap}
+.lane.off{background:var(--tone-do);color:var(--pill-negative-ink)}
+.lane.empty{color:var(--muted)}.lane.empty b{font-weight:400}
+.b-trang{background:#b9d6f6}.b-kem{background:#ffd98f}.b-xanh{background:#b4e6c8}.b-vang{background:#ffe97a}.b-do{background:#ffc9c4}
+.axis{position:relative;height:16px}.axis span{position:absolute;transform:translateX(-50%)}.axis span:first-child{transform:none}
+.mc-tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mc-tiles div{padding:12px 14px;border-radius:8px;background:var(--raised)}
+.mc-tiles .main{background:var(--blue);color:#fff}
+.mc-tiles span{display:block;font-size:13px}
+.mc-tiles b{display:block;margin-top:2px;font-size:26px;line-height:34px}
+.mc-list{display:flex;flex-direction:column;gap:6px}
+.mc-day{display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:8px;align-items:center;width:100%;min-height:56px;padding:0 14px;border:0;border-radius:8px;text-align:left}
+.mc-day b{font-size:18px;overflow-wrap:anywhere}
+.mc-day .t{font-size:14px;font-weight:500}.mc-day .g{font-size:14px;text-align:right}
+.mc-day.none{background:var(--raised);color:var(--muted)}
 @media (max-width:640px){
-  .topbar-in{flex-wrap:wrap;height:auto;gap:4px 8px;padding:8px 16px 0}
+  body{padding-bottom:72px}
+  .topbar-in{height:52px;padding:0 16px}
   .topbar-in .mark{display:block}.brand span{display:inline}
-  .tabs{order:3;flex-basis:100%;height:40px;justify-content:space-between;overflow:visible}
-  .tab{min-width:0}
-  .multi-bar b{flex-basis:100%;margin:0;text-align:center}
-  .multi-bar .btn{flex:1}
-  .multi-pad{height:120px}
-  .grid th{top:97px}
-  #dbWrap iframe{height:calc(100vh - 97px)}
-  .bs{max-height:calc(100vh - 150px);margin:0 -16px;border-width:1px 0;border-radius:0}
+  .tic{display:block}
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:8;display:flex;gap:0;height:64px;background:var(--surface);border-top:1px solid var(--border)}
+  .tab{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0;font-size:12px;line-height:15px}
+  .tab[aria-current]{color:var(--blue);font-weight:700}
+  .tab[aria-current]::after{display:none}
+  #dbWrap iframe{height:calc(100vh - 117px)}
+  .multi-bar{bottom:64px}
+  #toast{bottom:76px}
+  .bs{max-height:calc(100vh - 230px);margin:0 -16px;border-width:1px 0;border-radius:0}
   .bs td,.bs td input,.bs td select{height:44px}
 }
+@media (max-width:380px){.ma-row{grid-template-columns:84px repeat(7,minmax(0,1fr)) 28px;padding:0 4px 0 8px}.tab{font-size:11px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -299,12 +355,12 @@ dialog h2{margin-bottom:14px;font-size:18px;line-height:24px;font-weight:700}
     <span>Công Việc</span>
   </div>
   <nav class="tabs" aria-label="Chức năng">
-    <button class="tab" id="tabCa">Phân ca</button>
-    <button class="tab" id="tabRs">Roadshow</button>
-    <button class="tab" id="tabDb">Đăng bài</button>
-    <button class="tab" id="tabTk" hidden>Thống kê</button>
-    <button class="tab" id="tabQuy">Quỹ</button>
-    <button class="tab" id="tabBang">Nhập liệu</button>
+    <button class="tab" id="tabCa"><svg class="tic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4"/></svg>Phân ca</button>
+    <button class="tab" id="tabRs"><svg class="tic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 16V8h11v8M14 11h4l3 3v2h-7M7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>Roadshow</button>
+    <button class="tab" id="tabDb"><svg class="tic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 20l1-4L16 5l3 3L8 19z"/></svg>Đăng bài</button>
+    <button class="tab" id="tabTk" hidden><svg class="tic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 20V11M12 20V4M19 20v-6"/></svg>Thống kê</button>
+    <button class="tab" id="tabQuy"><svg class="tic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 7h18v12H3zM3 7l3-3h12l3 3M16 13h2"/></svg>Quỹ</button>
+    <button class="tab" id="tabBang"><svg class="tic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 5h16v14H4zM4 10h16M10 5v14"/></svg>Nhập liệu</button>
   </nav>
   <div class="top-right"><button class="btn" id="mgr">Quản lý</button></div>
 </div></header>
@@ -397,7 +453,7 @@ const STORE_KEY = "lich_sieu_thi_v3";
 const ST_KEY = "lich_sieu_thi_chon";
 const $ = id => document.getElementById(id);
 
-const state = {multi:false,sel:new Set(),st:"",stores:[],units:[],tab:"ca",year:0,month:0,week:null,rsDay:null,employees:[],codes:[],cells:{},locks:{},
+const state = {mobile:window.matchMedia("(max-width:640px)").matches,view:"nhom",day:null,me:"",multi:false,sel:new Set(),st:"",stores:[],units:[],tab:"ca",year:0,month:0,week:null,rsDay:null,employees:[],codes:[],cells:{},locks:{},
   quy:null,quyForm:null,bang:null,rsPlans:[],rsChecks:{},rsEmp:{},rsPlan:null,rsDraft:null,pw:null,active:null,pending:0,loadId:0,loaded:false,failed:false,after:null};
 
 function mondayOf(d){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x}
@@ -603,7 +659,10 @@ function stateBlock(v){
   v.append(p);
 }
 function renderCa(){
-  const v=$("view"),ws=weeks();
+  if(state.mobile&&state.loaded&&state.st&&state.employees.length)renderCaMob();else renderCaBang($("view"));
+}
+function renderCaBang(v){
+  const ws=weeks();
   const week=state.week&&ws.some(w=>ymd(w)===state.week)?state.week:ymd(ws[0]);
   state.week=week;
   const mon=parse(week),idx=ws.findIndex(w=>ymd(w)===week),locked=!!state.locks[week];
@@ -1001,6 +1060,134 @@ async function delQuy(r){
   if(await send({action:"quyDelete",id:r.id},"Đã xóa")){if(state.quyForm&&state.quyForm.id===r.id)state.quyForm=null;await loadQuy()}
 }
 
+/* ---------- Phân ca trên điện thoại ---------- */
+function layView(){try{return {view:localStorage.getItem("ca_view")||"nhom",me:localStorage.getItem("ca_me")||""}}catch(e){return {view:"nhom",me:""}}}
+function luuView(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function tenGon(n){return n.trim().split(/\s+/).slice(-2).join(" ")}
+function khungCa(){
+  let h=8;const m={};
+  [...state.units].sort((a,b)=>Number(a.so)-Number(b.so)).forEach(u=>{m[u.so]=[h,h+Number(u.gio)];h+=Number(u.gio)});
+  return {m,dau:8,cuoi:h};
+}
+function fmtGio(h){const p=Math.round((h%1)*60);return Math.floor(h)+"h"+(p?String(p).padStart(2,"0"):"")}
+function gioThuc(code){
+  const k=khungCa().m,d=caOf(code).map(x=>k[x]);
+  const g=[];d.sort((x,y)=>x[0]-y[0]).forEach(x=>{const l=g[g.length-1];if(l&&l[1]===x[0])l[1]=x[1];else g.push([...x])});
+  return g.map(x=>fmtGio(x[0])+" – "+fmtGio(x[1])).join(", ");
+}
+function doiTuan(n){
+  const d=addDays(parse(state.week),7*n),k=ymd(d);state.sel.clear();
+  if(weeks().some(w=>ymd(w)===k)){state.week=k;render();return}
+  state.year=d.getFullYear();state.month=d.getMonth();resetData();state.week=k;render();load();
+}
+function doiView(k){state.view=k;state.multi=false;state.sel.clear();luuView("ca_view",k);render()}
+function chupTuan(){
+  const t=el("div");renderCaBang(t);
+  return chupVung(t.querySelector(".panel"),tenST()+" · Phân ca","phan-ca-"+state.week,x=>{x.querySelectorAll(".cell.none .code").forEach(c=>c.textContent="");x.querySelectorAll(".multi-tip").forEach(c=>c.remove())});
+}
+function renderCaMob(){
+  const v=$("view"),ws=weeks();
+  if(!state.week||!ws.some(w=>ymd(w)===state.week))state.week=ymd(ws[0]);
+  const week=state.week,mon=parse(week),idx=ws.findIndex(w=>ymd(w)===week),locked=!!state.locks[week],sua=!locked||!!state.pw;
+  if(!sua){state.multi=false;state.sel.clear()}
+  const head=el("div","mhead"),top=el("div","mtop");
+  top.append(el("h1","","Phân ca"),storeSelect());head.append(top);
+  const seg=el("div","mseg");
+  [["nhom","Cả nhóm"],["ngay","Theo ngày"],["toi","Của tôi"]].forEach(([k,t])=>{const b=btn("",t,()=>doiView(k));b.setAttribute("aria-pressed",state.view===k);seg.append(b)});
+  head.append(seg);
+  const wk=el("div","mweek"),p=btn("","‹",()=>doiTuan(-1)),n=btn("","›",()=>doiTuan(1));
+  p.setAttribute("aria-label","Tuần trước");n.setAttribute("aria-label","Tuần sau");
+  wk.append(p,el("b","","Tuần "+(idx+1)+": "+dm(mon)+" – "+dm(addDays(mon,6))),n);head.append(wk);
+  let trong=0;state.employees.forEach(e=>{for(let i=0;i<7;i++)if(!state.cells[key(e,ymd(addDays(mon,i)))])trong++});
+  const act=el("div","mact");
+  act.append(el("span","pill"+(locked?" lock":""),locked?"Đã khóa":"Đang mở"),el("span","mnote",trong?"Còn "+trong+" ô chưa chọn ca":"Đã đủ ca"));head.append(act);
+  const act2=el("div","mact");
+  if(state.view==="nhom"&&sua)act2.append(btn("btn"+(state.multi?" primary":""),state.multi?"Xong":"Chọn nhiều",()=>{state.multi=!state.multi;state.sel.clear();render()}));
+  act2.append(nutChup("",chupTuan));
+  if(state.pw)act2.append(btn("btn"+(locked?"":" primary"),locked?"Mở khóa":"Khóa tuần",()=>setLock(week,!locked)));
+  head.append(act2);
+  if(state.pw){
+    const t=el("div","mact");
+    t.append(btn("btn","Siêu thị",openStore),btn("btn","Ca",openCode),btn("btn","Nhân viên",openEmp));head.append(t);
+  }
+  v.append(head);
+  if(state.view==="ngay")mobNgay(v,mon,sua);else if(state.view==="toi")mobToi(v,mon,sua);else mobNhom(v,mon,sua);
+}
+function mobNhom(v,mon,sua){
+  const box=el("div","ma"),h=el("div","ma-row ma-head"),today=ymd(new Date());
+  if(state.multi)h.append(el("div","","Bấm tên, ngày"));else h.append(el("div","","Nhân viên"));
+  h.firstChild.style.textAlign="left";
+  ["T2","T3","T4","T5","T6","T7","CN"].forEach((t,i)=>{
+    const dt=addDays(mon,i),date=ymd(dt),b=btn(date===today?"now":"","",()=>{if(state.multi)chonNhom(state.employees.map(n=>key(n,date)))});
+    b.append(el("div","",t),el("div","",dt.getDate()));h.append(b);
+  });
+  const g=el("div","","Giờ");g.style.textAlign="right";h.append(g);box.append(h);
+  state.employees.forEach(name=>{
+    const r=el("div","ma-row"),gw=hoursWeek(name,mon);
+    r.append(btn("ma-name",tenGon(name),()=>{
+      if(state.multi)chonNhom(DAYS.map((x,i)=>key(name,ymd(addDays(mon,i)))));
+      else toast(name+": tuần "+fmtH(gw)+" giờ, tháng "+fmtH(hoursMonth(name))+" giờ");
+    }));
+    DAYS.forEach((d,i)=>{
+      const date=ymd(addDays(mon,i)),code=state.cells[key(name,date)]||"";
+      const b=btn("ma-cell "+(code.length>5?"dai ":"")+(code?"t-"+codeTone(code):"none")+(state.sel.has(key(name,date))?" picked":""),code||(sua?"+":"–"),()=>{if(state.multi)chonNhom([key(name,date)]);else openPicker(name,date)});
+      b.disabled=!sua;b.setAttribute("aria-label",name+" "+d+" "+dm(addDays(mon,i))+": "+(code||"chưa có ca"));r.append(b);
+    });
+    r.append(el("div","ma-gio",fmtH(gw)));box.append(r);
+  });
+  v.append(box);
+  if(state.multi){
+    const f=el("div","multi-bar"),n=state.sel.size;v.append(el("div","multi-pad"));
+    f.append(el("b","","Đã chọn "+n+" ô"),btn("btn primary","Chọn ca",moNhieu),btn("btn","Xóa ca",xoaNhieu),btn("btn","Bỏ chọn",()=>{state.sel.clear();render()}));
+    f.querySelectorAll(".btn").forEach(x=>x.disabled=!n);v.append(f);
+  }
+}
+function mobNgay(v,mon,sua){
+  const today=ymd(new Date());
+  if(state.day===null||state.day===undefined){const i=Math.round((parse(today)-mon)/864e5);state.day=i>=0&&i<7?i:0}
+  const d=state.day,dt=addDays(mon,d),date=ymd(dt),strip=el("div","mdays");
+  ["T2","T3","T4","T5","T6","T7","CN"].forEach((t,i)=>{
+    const b=btn("","",()=>{state.day=i;render()});b.setAttribute("aria-pressed",i===d);
+    b.append(el("span","",t),el("b","",addDays(mon,i).getDate()));strip.append(b);
+  });
+  const k=khungCa(),tong=k.cuoi-k.dau,pos=h=>(h-k.dau)/tong*100;
+  const ds=state.employees.map(n=>{const c=state.cells[key(n,date)]||"";return {n,c,ca:caOf(c).map(x=>k.m[x])}});
+  const dau=x=>x.ca.length?Math.min(...x.ca.map(y=>y[0])):99;
+  const lam=ds.filter(x=>x.ca.length).sort((a,b)=>dau(a)-dau(b)||b.ca.length-a.ca.length);
+  const khac=ds.filter(x=>!x.ca.length&&x.c&&x.c.toUpperCase()!=="OFF"),nghi=ds.filter(x=>x.c.toUpperCase()==="OFF"),chua=ds.filter(x=>!x.c);
+  const sum=el("div","msum");
+  sum.append(el("b","",DAYS[d]+", "+dm(dt)),el("span","mnote",lam.length+" làm, "+nghi.length+" nghỉ"+(chua.length?", "+chua.length+" chưa chọn":"")));
+  const h=el("div","mhead");h.append(strip,sum);v.append(h);
+  const box=el("div","mb"),ax=el("div","mb-row mb-axis"),line=el("div","axis");
+  let truoc=-9;[k.dau,...Object.values(k.m).map(x=>x[0]),].forEach(g=>{if(g-truoc>=2||truoc<0){const s=el("span","",fmtGio(g));s.style.left=pos(g)+"%";line.append(s);truoc=g}});
+  const go=el("div","","Giờ");go.style.textAlign="right";ax.append(el("div"),line,go);box.append(ax);
+  [...lam,...khac,...nghi,...chua].forEach(x=>{
+    const r=btn("mb-row","",()=>openPicker(x.n,date));r.disabled=!sua;r.setAttribute("aria-label",x.n+": "+(x.c||"chưa có ca"));
+    const lane=el("span","lane"+(x.c.toUpperCase()==="OFF"?" off":x.c?"":" empty"));
+    x.ca.forEach(y=>{const i=el("i","b-"+codeTone(x.c));i.style.left=pos(y[0])+"%";i.style.width=(pos(y[1])-pos(y[0]))+"%";lane.append(i)});
+    lane.append(el("b","",x.c||"Chưa chọn ca"));
+    r.append(el("span","mb-name",tenGon(x.n)),lane,el("span","ma-gio",fmtH(gioOf(x.c))));box.append(r);
+  });
+  v.append(box);
+}
+function mobToi(v,mon,sua){
+  if(!state.employees.includes(state.me))state.me=state.employees[0];
+  const me=state.me,c=el("select","store-sel"),h=el("div","mhead");
+  c.style.width="100%";c.style.maxWidth="none";c.style.height="44px";c.setAttribute("aria-label","Chọn nhân viên");
+  state.employees.forEach(n=>c.append(el("option","",n)));c.value=me;c.onchange=()=>{state.me=c.value;luuView("ca_me",c.value);render()};
+  const t=el("div","mc-tiles"),a=el("div","main"),b=el("div");
+  a.append(el("span","","Giờ công tuần này"),el("b","",fmtH(hoursWeek(me,mon))+" giờ"));
+  b.append(el("span","","Giờ công tháng "+(state.month+1)),el("b","",fmtH(hoursMonth(me))+" giờ"));t.append(a,b);h.append(c,t);v.append(h);
+  const list=el("div","mc-list");
+  DAYS.forEach((d,i)=>{
+    const dt=addDays(mon,i),date=ymd(dt),code=state.cells[key(me,date)]||"",g=gioOf(code);
+    const r=btn("mc-day "+(code?"t-"+codeTone(code):"none"),"",()=>openPicker(me,date));r.disabled=!sua;
+    r.append(el("span","t",d+" "+dm(dt)),el("b","",code||"Chưa chọn"),el("span","g",g?gioThuc(code)+"\n"+fmtH(g)+" giờ":code.toUpperCase()==="OFF"?"Nghỉ":""));
+    r.lastChild.style.whiteSpace="pre-line";list.append(r);
+  });
+  v.append(list);
+}
+
 /* ---------- Bảng nhập liệu ---------- */
 const BANG_KIEU={text:"Chữ",num:"Số",date:"Ngày",list:"Danh sách",nv:"Nhân viên"};
 const BANG_MAU=[{id:"c1",ten:"Ngày",kieu:"date"},{id:"c2",ten:"Việc phát sinh",kieu:"text"},{id:"c3",ten:"Phụ trách",kieu:"nv"},{id:"c4",ten:"Hạn xử lý",kieu:"date"},{id:"c5",ten:"Trạng thái",kieu:"list",ds:"Chưa làm,Đang làm,Xong"},{id:"c6",ten:"Ghi chú",kieu:"text"}];
@@ -1372,14 +1559,14 @@ async function saveCode(){
 function rememberStore(st){state.st=st;try{if(st)localStorage.setItem(ST_KEY,st)}catch(e){}}
 function resetData(){
   state.sel.clear();
-  Object.assign(state,{week:null,rsDay:null,rsPlan:null,rsDraft:null,employees:[],rsPlans:[],rsChecks:{},rsEmp:{},cells:{},locks:{},quy:null,quyForm:null,bang:null,loaded:false,failed:false});
+  Object.assign(state,{day:null,week:null,rsDay:null,rsPlan:null,rsDraft:null,employees:[],rsPlans:[],rsChecks:{},rsEmp:{},cells:{},locks:{},quy:null,quyForm:null,bang:null,loaded:false,failed:false});
 }
 function goMonth(n){
   bangLuu();
   const d=new Date(state.year,state.month+n,1);state.year=d.getFullYear();state.month=d.getMonth();
   resetData();render();load();if(state.tab==="quy")loadQuy();if(state.tab==="bang")loadBang();
 }
-function setStore(st){bangLuu();const w=state.week;rememberStore(st);resetData();state.week=w;render();load();if(state.tab==="quy")loadQuy();if(state.tab==="bang")loadBang()}
+function setStore(st){bangLuu();state.day=null;const w=state.week;rememberStore(st);resetData();state.week=w;render();load();if(state.tab==="quy")loadQuy();if(state.tab==="bang")loadBang()}
 function setTab(t){bangLuu();state.multi=false;state.sel.clear();state.tab=t;if(t==="quy"){state.quy=null;render();loadQuy()}else if(t==="bang"){state.bang=null;render();loadBang()}else render();window.scrollTo(0,0)}
 
 $("tabCa").onclick=()=>setTab("ca");
@@ -1411,6 +1598,8 @@ $("saveCode").onclick=saveCode;
 
 /* Chủ Nhật mở sẵn tuần sau để nhân viên sắp ca */
 (function start(){
+  Object.assign(state,layView());
+  window.matchMedia("(max-width:640px)").addEventListener("change",e=>{state.mobile=e.matches;render()});
   const now=new Date(),t=now.getDay()===0?addDays(mondayOf(now),7):mondayOf(now);
   try{state.st=localStorage.getItem(ST_KEY)||""}catch(e){}
   state.year=t.getFullYear();state.month=t.getMonth();state.week=ymd(t);
