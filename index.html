@@ -129,6 +129,12 @@ th{font-weight:500;color:var(--muted);font-size:var(--fs-small)}
 .col-row input,.col-row select{height:40px;min-width:0;flex:1;padding:0 8px;border:1px solid var(--control);border-radius:var(--radius-control);background:#fff}
 .col-row .x{flex:none;width:40px;height:40px;border:1px solid var(--control);border-radius:var(--radius-control);background:#fff;color:var(--negative)}
 .opts{display:block;width:100%;height:40px;margin-top:6px;padding:0 8px;border:1px solid var(--control);border-radius:var(--radius-control)}
+.cell.picked,.cell.picked:not(:disabled):hover{box-shadow:inset 0 0 0 3px var(--ink)}
+.multi .person,.multi .grid th{cursor:pointer}
+.multi-tip{padding:0 16px 10px;color:var(--muted);font-size:var(--fs-small)}
+.multi-bar{position:fixed;left:0;right:0;bottom:0;z-index:7;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;padding:10px 16px;background:var(--surface);border-top:1px solid var(--border);box-shadow:0 -6px 18px rgba(13,20,32,.12)}
+.multi-bar b{margin-right:8px}
+.multi-pad{height:72px}
 .panel-head .shot{margin-left:auto}
 .panel-head .shot+.btn{margin-left:0}
 .money-strip{display:grid;grid-template-columns:repeat(4,1fr);margin-bottom:var(--gap);overflow:hidden}
@@ -270,6 +276,9 @@ dialog h2{margin-bottom:14px;font-size:18px;line-height:24px;font-weight:700}
   .topbar-in .mark{display:block}.brand span{display:inline}
   .tabs{order:3;flex-basis:100%;height:40px;justify-content:space-between;overflow:visible}
   .tab{min-width:0}
+  .multi-bar b{flex-basis:100%;margin:0;text-align:center}
+  .multi-bar .btn{flex:1}
+  .multi-pad{height:120px}
   .grid th{top:97px}
   #dbWrap iframe{height:calc(100vh - 97px)}
   .bs{max-height:calc(100vh - 150px);margin:0 -16px;border-width:1px 0;border-radius:0}
@@ -375,7 +384,7 @@ const STORE_KEY = "lich_sieu_thi_v3";
 const ST_KEY = "lich_sieu_thi_chon";
 const $ = id => document.getElementById(id);
 
-const state = {st:"",stores:[],units:[],tab:"ca",year:0,month:0,week:null,rsDay:null,employees:[],codes:[],cells:{},locks:{},
+const state = {multi:false,sel:new Set(),st:"",stores:[],units:[],tab:"ca",year:0,month:0,week:null,rsDay:null,employees:[],codes:[],cells:{},locks:{},
   quy:null,quyForm:null,bang:null,rsPlans:[],rsChecks:{},rsEmp:{},rsPlan:null,rsDraft:null,pw:null,active:null,pending:0,loadId:0,loaded:false,failed:false,after:null};
 
 function mondayOf(d){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x}
@@ -445,6 +454,10 @@ function localPost(b){
   if(b.action==="setCell"){
     if(!m&&x.locks[ymd(mondayOf(parse(b.date)))])throw new Error("Tuần này đã khóa");
     if(b.code)x.cells[key(b.name,b.date)]=b.code;else delete x.cells[key(b.name,b.date)];
+  }
+  if(b.action==="setCells"){
+    if(!m&&b.cells.some(c=>x.locks[ymd(mondayOf(parse(c.date)))]))throw new Error("Tuần này đã khóa");
+    b.cells.forEach(c=>{if(c.code)x.cells[key(c.name,c.date)]=c.code;else delete x.cells[key(c.name,c.date)]});
   }
   if(b.action==="setLock"){if(b.locked)x.locks[b.week]=true;else delete x.locks[b.week]}
   if(b.action==="saveStores"){
@@ -591,7 +604,7 @@ function renderCa(){
 
   const strip=el("div","weeks");
   ws.forEach((w,i)=>{
-    const k=ymd(w),b=btn("wk","",()=>{state.week=k;render()}),isLocked=!!state.locks[k],f=fill(w);
+    const k=ymd(w),b=btn("wk","",()=>{state.week=k;state.sel.clear();render()}),isLocked=!!state.locks[k],f=fill(w);
     b.setAttribute("aria-pressed",k===week);
     b.append(el("b","","Tuần "+(i+1)),el("span","",dm(w)+" – "+dm(addDays(w,6))),
       el("span","wk-state",isLocked?"Đã khóa":total?f+"/"+total+" ô":"Đang mở"));
@@ -600,11 +613,14 @@ function renderCa(){
   v.append(strip);
   const wkOn=strip.querySelector('[aria-pressed="true"]');if(wkOn)strip.scrollLeft=wkOn.offsetLeft-strip.offsetLeft-16;
 
-  const box=el("section","panel"+(locked?" locked":"")),head=el("div","panel-head");
+  const sua=!locked||!!state.pw;if(!sua){state.multi=false;state.sel.clear()}
+  const box=el("section","panel"+(locked?" locked":"")+(state.multi?" multi":"")),head=el("div","panel-head");
   head.append(el("h2","","Tuần "+(idx+1)+": "+dm(mon)+" – "+dm(addDays(mon,6))),el("span","pill"+(locked?" lock":""),locked?"Đã khóa":"Đang mở"));
-  if(state.employees.length)head.append(nutChup("shot",()=>chupVung(box,tenST()+" · Phân ca","phan-ca-"+week,x=>{x.querySelectorAll(".cell.none .code").forEach(c=>c.textContent="")})));
+  if(state.employees.length&&sua)head.append(btn("btn no-shot shot"+(state.multi?" primary":""),state.multi?"Xong":"Chọn nhiều",()=>{state.multi=!state.multi;state.sel.clear();render()}));
+  if(state.employees.length)head.append(nutChup("shot",()=>chupVung(box,tenST()+" · Phân ca","phan-ca-"+week,x=>{x.querySelectorAll(".cell.none .code").forEach(c=>c.textContent="");x.querySelectorAll(".picked").forEach(c=>c.classList.remove("picked"));x.querySelectorAll(".multi-tip").forEach(c=>c.remove())})));
   if(state.pw)head.append(btn("btn no-shot"+(locked?"":" primary"),locked?"Mở khóa":"Khóa tuần",()=>setLock(week,!locked)));
   box.append(head);
+  if(state.multi)box.append(el("div","multi-tip","Bấm từng ô để chọn. Bấm tên hoặc ngày để chọn cả dòng, cả cột."));
   if(!state.employees.length){
     const e=el("p","empty","Danh sách nhân viên đang trống.");
     e.append(el("br"),btn("btn primary","Khai báo nhân viên",()=>needMgr(openEmp)));box.append(e);
@@ -615,6 +631,7 @@ function renderCa(){
   hr.append(el("th","","Nhân viên"));
   DAYS.forEach((d,i)=>{
     const dt=addDays(mon,i),c=el("th",ymd(dt)===today?"today":"",d);c.append(el("b","",dm(dt)));hr.append(c);
+    c.onclick=()=>{if(state.multi)chonNhom(state.employees.map(n=>key(n,ymd(dt))))};
   });
   const hW=el("th","hrs","Giờ công");hW.append(el("b","","tuần"));const hM=el("th","hrs","Giờ công");hM.append(el("b","","tháng "+(state.month+1)));hr.append(hW,hM);
   th.append(hr);g.append(th);
@@ -623,9 +640,10 @@ function renderCa(){
     const tr=el("tr"),who=el("td","person"),gw=hoursWeek(name,mon),gm=hoursMonth(name);
     who.append(el("span","ten-du",name),el("span","ten-gon",name.trim().split(/\s+/).slice(-2).join(" ")));
     who.append(el("span","sub","Tuần "+fmtH(gw)+"g"),el("span","sub","Tháng "+fmtH(gm)+"g"));tr.append(who);
+    who.onclick=()=>{if(state.multi)chonNhom(DAYS.map((x,i)=>key(name,ymd(addDays(mon,i)))))};
     DAYS.forEach((d,i)=>{
       const dt=addDays(mon,i),date=ymd(dt),code=state.cells[key(name,date)]||"",td=el("td","c");
-      const b=btn("cell "+(code?"t-"+codeTone(code):"none"),"",()=>openPicker(name,date));
+      const b=btn("cell "+(code?"t-"+codeTone(code):"none")+(state.sel.has(key(name,date))?" picked":""),"",()=>{if(state.multi)chonNhom([key(name,date)]);else openPicker(name,date)});
       b.append(el("span","code",code||(locked&&!state.pw?"–":"+")));
       if(caOf(code).length)b.append(bar(code));
       b.disabled=locked&&!state.pw;b.setAttribute("aria-label",name+" "+d+" "+dm(dt)+": "+(code||"chưa có ca"));
@@ -635,6 +653,35 @@ function renderCa(){
     body.append(tr);
   });
   g.append(body);sc.append(g);box.append(sc);v.append(box);
+  if(state.multi){
+    const f=el("div","multi-bar"),n=state.sel.size;v.append(el("div","multi-pad"));
+    f.append(el("b","","Đã chọn "+n+" ô"),btn("btn primary","Chọn ca",moNhieu),btn("btn","Xóa ca",xoaNhieu),btn("btn","Bỏ chọn",()=>{state.sel.clear();render()}));
+    f.querySelectorAll(".btn").forEach(x=>x.disabled=!n);v.append(f);
+  }
+}
+function chonNhom(ds){
+  const het=ds.every(k=>state.sel.has(k));
+  ds.forEach(k=>{if(het)state.sel.delete(k);else state.sel.add(k)});render();
+}
+function moNhieu(){
+  state.active={nhieu:true};
+  $("pickTitle").textContent="Phân ca cho "+state.sel.size+" ô";
+  const box=$("picks");box.textContent="";
+  state.codes.forEach(c=>{
+    const b=btn("pick t-"+c.mau,"",()=>choose(c.ma)),t=el("b","",c.ma);
+    const g=gioOf(c.ma);t.append(el("small","",g?fmtH(g)+" giờ":""));b.append(t);if(caOf(c.ma).length)b.append(bar(c.ma));box.append(b);
+  });
+  $("picker").showModal();
+}
+function xoaNhieu(){
+  if(confirm("Xóa ca ở "+state.sel.size+" ô đã chọn?"))ganNhieu("");
+}
+async function ganNhieu(code){
+  const ds=[...state.sel].map(k=>{const i=k.lastIndexOf("|");return {k,name:k.slice(0,i),date:k.slice(i+1),cu:state.cells[k]||""}});
+  ds.forEach(x=>{if(code)state.cells[x.k]=code;else delete state.cells[x.k]});
+  state.sel.clear();render();
+  const r=await send({action:"setCells",cells:ds.map(x=>({date:x.date,name:x.name,code}))},"Đã cập nhật "+ds.length+" ô");
+  if(!r){ds.forEach(x=>{if(x.cu)state.cells[x.k]=x.cu;else delete state.cells[x.k]});render();load(true)}
 }
 function hoursWeek(name,mon){let n=0;for(let i=0;i<7;i++)n+=gioOf(state.cells[key(name,ymd(addDays(mon,i)))]);return n}
 function monthDays(){const out=[],last=new Date(state.year,state.month+1,0).getDate();for(let d=1;d<=last;d++)out.push(new Date(state.year,state.month,d));return out}
@@ -1163,6 +1210,7 @@ function openPicker(name,date){
   $("picker").showModal();
 }
 async function choose(code){
+  if(state.active.nhieu){$("picker").close();ganNhieu(code);return}
   const {name,date}=state.active,k=key(name,date),old=state.cells[k]||"";
   $("picker").close();
   if(code===old)return;
@@ -1304,6 +1352,7 @@ async function saveCode(){
 
 function rememberStore(st){state.st=st;try{if(st)localStorage.setItem(ST_KEY,st)}catch(e){}}
 function resetData(){
+  state.sel.clear();
   Object.assign(state,{week:null,rsDay:null,rsPlan:null,rsDraft:null,employees:[],rsPlans:[],rsChecks:{},rsEmp:{},cells:{},locks:{},quy:null,quyForm:null,bang:null,loaded:false,failed:false});
 }
 function goMonth(n){
@@ -1312,7 +1361,7 @@ function goMonth(n){
   resetData();render();load();if(state.tab==="quy")loadQuy();if(state.tab==="bang")loadBang();
 }
 function setStore(st){bangLuu();const w=state.week;rememberStore(st);resetData();state.week=w;render();load();if(state.tab==="quy")loadQuy();if(state.tab==="bang")loadBang()}
-function setTab(t){bangLuu();state.tab=t;if(t==="quy"){state.quy=null;render();loadQuy()}else if(t==="bang"){state.bang=null;render();loadBang()}else render();window.scrollTo(0,0)}
+function setTab(t){bangLuu();state.multi=false;state.sel.clear();state.tab=t;if(t==="quy"){state.quy=null;render();loadQuy()}else if(t==="bang"){state.bang=null;render();loadBang()}else render();window.scrollTo(0,0)}
 
 $("tabCa").onclick=()=>setTab("ca");
 $("tabRs").onclick=()=>setTab("rs");
@@ -1348,7 +1397,7 @@ $("saveCode").onclick=saveCode;
 })();
 /* Tự cập nhật mỗi 30 giây để thấy thay đổi của người khác */
 if(API_URL)setInterval(()=>{
-  const busy=state.rsDraft||document.querySelector("dialog[open]")||document.activeElement.tagName==="INPUT"||document.activeElement.tagName==="SELECT";
+  const busy=state.sel.size||state.rsDraft||document.querySelector("dialog[open]")||document.activeElement.tagName==="INPUT"||document.activeElement.tagName==="SELECT";
   if(!document.hidden&&!state.pending&&!busy&&state.tab!=="db"){if(state.tab==="quy")loadQuy();else if(state.tab==="bang"){if(!bangBan.ids.size)loadBang()}else load(true)}
 },30000);
 </script>
