@@ -135,6 +135,11 @@ th{font-weight:500;color:var(--muted);font-size:var(--fs-small)}
 .multi-bar{position:fixed;left:0;right:0;bottom:0;z-index:7;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;padding:10px 16px;background:var(--surface);border-top:1px solid var(--border);box-shadow:0 -6px 18px rgba(13,20,32,.12)}
 .multi-bar b{margin-right:8px}
 .multi-pad{height:72px}
+.save-bar{position:fixed;left:0;right:0;bottom:0;z-index:7;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;background:var(--ink);color:#fff}
+.save-bar.cao{bottom:65px}
+.save-bar b{margin-right:auto;max-width:560px}
+.save-bar .btn{color:var(--ink)}
+.save-pad{height:64px}
 .ca-khac{margin-top:14px}
 .ca-khac input{flex:1;min-width:0;height:40px;padding:0 10px;border:1px solid var(--control);border-radius:var(--radius-control);background:#fff}
 .ca-khac .btn{height:40px}
@@ -340,6 +345,8 @@ dialog h2{margin-bottom:14px;font-size:18px;line-height:24px;font-weight:700}
   .tab[aria-current]::after{display:none}
   #dbWrap iframe{height:calc(100vh - 117px)}
   .multi-bar{bottom:64px}
+  .save-bar{bottom:64px}
+  .save-bar.cao{bottom:178px}
   #toast{bottom:76px}
   .bs{max-height:calc(100vh - 230px);margin:0 -16px;border-width:1px 0;border-radius:0}
   .bs td,.bs td input,.bs td select{height:44px}
@@ -453,7 +460,7 @@ const STORE_KEY = "lich_sieu_thi_v3";
 const ST_KEY = "lich_sieu_thi_chon";
 const $ = id => document.getElementById(id);
 
-const state = {mobile:window.matchMedia("(max-width:640px)").matches,view:"nhom",day:null,me:"",multi:false,sel:new Set(),st:"",stores:[],units:[],tab:"ca",year:0,month:0,week:null,rsDay:null,employees:[],codes:[],cells:{},locks:{},
+const state = {nhap:{},nhapSt:null,dangLuu:false,mobile:window.matchMedia("(max-width:640px)").matches,view:"nhom",day:null,me:"",multi:false,sel:new Set(),st:"",stores:[],units:[],tab:"ca",year:0,month:0,week:null,rsDay:null,employees:[],codes:[],cells:{},locks:{},
   quy:null,quyForm:null,bang:null,rsPlans:[],rsChecks:{},rsEmp:{},rsPlan:null,rsDraft:null,pw:null,active:null,pending:0,loadId:0,loaded:false,failed:false,after:null};
 
 function mondayOf(d){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x}
@@ -588,7 +595,7 @@ async function apiPost(body){
 async function send(body,okMsg){
   state.pending++;
   try{const r=await apiPost(body);if(okMsg)toast(okMsg);return r||{}}
-  catch(e){toast(e.message||"Chưa lưu được, thử lại sau");return null}
+  catch(e){toast(/lock|fetch/i.test(e.message||"")?"Hệ thống đang bận, dữ liệu vẫn còn, hãy bấm Lưu lại":e.message||"Chưa lưu được, thử lại sau");return null}
   finally{state.pending--}
 }
 async function load(silent){
@@ -599,7 +606,7 @@ async function load(silent){
     rememberStore(d.st);
     Object.assign(state,{stores:d.stores,units:d.units,employees:d.employees,codes:d.codes,cells:d.cells,locks:d.locks,rsPlans:d.rsPlans,
       rsChecks:d.rsChecks,rsEmp:d.rsEmp,loaded:true,failed:false});
-    render();
+    apNhap();render();
   }catch(e){if(id===state.loadId&&!silent){state.failed=true;render()}}
 }
 
@@ -660,6 +667,7 @@ function stateBlock(v){
 }
 function renderCa(){
   if(state.mobile&&state.loaded&&state.st&&state.employees.length)renderCaMob();else renderCaBang($("view"));
+  veThanhLuu($("view"));
 }
 function renderCaBang(v){
   const ws=weeks();
@@ -748,12 +756,10 @@ function moNhieu(){
 function xoaNhieu(){
   if(confirm("Xóa ca ở "+state.sel.size+" ô đã chọn?"))ganNhieu("");
 }
-async function ganNhieu(code){
-  const ds=[...state.sel].map(k=>{const i=k.lastIndexOf("|");return {k,name:k.slice(0,i),date:k.slice(i+1),cu:state.cells[k]||""}});
-  ds.forEach(x=>{if(code)state.cells[x.k]=code;else delete state.cells[x.k]});
-  state.sel.clear();render();
-  const r=await send({action:"setCells",cells:ds.map(x=>({date:x.date,name:x.name,code}))},"Đã cập nhật "+ds.length+" ô");
-  if(!r){ds.forEach(x=>{if(x.cu)state.cells[x.k]=x.cu;else delete state.cells[x.k]});render();load(true)}
+function ganNhieu(code){
+  const n=state.sel.size;
+  [...state.sel].forEach(k=>datNhap(k,code));
+  state.sel.clear();render();toast("Đã chọn "+n+" ô, bấm Lưu để lưu lịch");
 }
 function hoursWeek(name,mon){let n=0;for(let i=0;i<7;i++)n+=gioOf(state.cells[key(name,ymd(addDays(mon,i)))]);return n}
 function monthDays(){const out=[],last=new Date(state.year,state.month+1,0).getDate();for(let d=1;d<=last;d++)out.push(new Date(state.year,state.month,d));return out}
@@ -1415,14 +1421,12 @@ function caKhacGio(){
   const v=$("caKhac").value.trim(),g=gioOf(v);
   $("caKhacGio").textContent=!v?"":g?fmtH(g)+" giờ công":"Không tính giờ công";
 }
-async function choose(code){
+function choose(code){
   if(state.active.nhieu){$("picker").close();ganNhieu(code);return}
   const {name,date}=state.active,k=key(name,date),old=state.cells[k]||"";
   $("picker").close();
   if(code===old)return;
-  if(code)state.cells[k]=code;else delete state.cells[k];
-  render();
-  if(!await send({action:"setCell",date,name,code})){if(old)state.cells[k]=old;else delete state.cells[k];render();load(true)}
+  datNhap(k,code);render();
 }
 async function setLock(week,locked){
   if(await send({action:"setLock",week,locked},locked?"Đã khóa tuần":"Đã mở khóa tuần")){
@@ -1556,7 +1560,37 @@ async function saveCode(){
   if(await send({action:"saveCodes",codes,units},"Đã lưu ca làm việc")){state.codes=codes;state.units=units;$("codeDlg").close();render()}
 }
 
-function rememberStore(st){state.st=st;try{if(st)localStorage.setItem(ST_KEY,st)}catch(e){}}
+function nhapKey(){return "ca_nhap_"+state.st}
+function nhapDoc(){try{state.nhap=JSON.parse(localStorage.getItem(nhapKey())||"{}")}catch(e){state.nhap={}}state.nhapSt=state.st}
+function nhapGhi(){try{localStorage.setItem(nhapKey(),JSON.stringify(state.nhap))}catch(e){}}
+function apNhap(){Object.keys(state.nhap).forEach(k=>{if(state.nhap[k])state.cells[k]=state.nhap[k];else delete state.cells[k]})}
+function datNhap(k,code){state.nhap[k]=code;if(code)state.cells[k]=code;else delete state.cells[k];nhapGhi()}
+async function luuCa(){
+  if(state.dangLuu)return;
+  const keys=Object.keys(state.nhap);if(!keys.length)return;
+  state.dangLuu=true;render();
+  let xong=0,loi=false;
+  for(let i=0;i<keys.length&&!loi;i+=300){
+    const nhom=keys.slice(i,i+300).map(k=>{const p=k.lastIndexOf("|");return {k,name:k.slice(0,p),date:k.slice(p+1),code:state.nhap[k]}});
+    const r=await send({action:"setCells",cells:nhom.map(x=>({date:x.date,name:x.name,code:x.code}))});
+    if(!r){loi=true;break}
+    nhom.forEach(x=>{if(state.nhap[x.k]===x.code)delete state.nhap[x.k]});nhapGhi();xong+=nhom.length;
+  }
+  state.dangLuu=false;
+  if(!loi){toast("Đã lưu "+xong+" ô");load(true)}
+  render();
+}
+function huyCa(){
+  if(!confirm("Bỏ các ca chưa lưu?"))return;
+  state.nhap={};nhapGhi();load(true);
+}
+function veThanhLuu(v){
+  const n=Object.keys(state.nhap).length;if(!n)return;
+  const f=el("div","save-bar"+(state.multi?" cao":"")),l=btn("btn primary",state.dangLuu?"Đang lưu…":"Lưu",luuCa),h=btn("btn","Hủy",huyCa);
+  l.disabled=h.disabled=state.dangLuu;
+  f.append(el("b","","Chưa lưu "+n+" ô"),h,l);v.append(el("div","save-pad"),f);
+}
+function rememberStore(st){state.st=st;if(state.nhapSt!==st)nhapDoc();try{if(st)localStorage.setItem(ST_KEY,st)}catch(e){}}
 function resetData(){
   state.sel.clear();
   Object.assign(state,{day:null,week:null,rsDay:null,rsPlan:null,rsDraft:null,employees:[],rsPlans:[],rsChecks:{},rsEmp:{},cells:{},locks:{},quy:null,quyForm:null,bang:null,loaded:false,failed:false});
