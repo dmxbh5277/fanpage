@@ -396,8 +396,14 @@ async function chupVung(vung,tieuDe,tenFile,sua,rong){
     const ban=vung.cloneNode(true),goc=dd.getElementById("chupGoc");goc.append(dd.adoptNode(ban));
     ban.querySelectorAll(".no-shot").forEach(x=>x.remove());if(sua)sua(ban);
     await (dd.fonts?dd.fonts.ready:Promise.resolve());await new Promise(r=>setTimeout(r,150));
-    const c=await html2canvas(goc,{scale:2,backgroundColor:"#fff",logging:false,windowWidth:rong});
-    const blob=await new Promise(r=>c.toBlob(r,"image/png"));
+    const dt=goc.offsetWidth*goc.offsetHeight;let net=4;
+    if(navigator.maxTouchPoints>0)while(net>2&&dt*net*net>16e6)net--;
+    let blob=null;
+    for(;net>=2&&!blob;net--){
+      const c=await html2canvas(goc,{scale:net,backgroundColor:"#fff",logging:false,windowWidth:rong});
+      blob=await new Promise(r=>c.toBlob(r,"image/png"));
+    }
+    if(!blob)throw new Error("Máy không chụp được ảnh này");
     chupXem(blob,tenFile+".png");
   }finally{f.remove()}
 }

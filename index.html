@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lịch Ca Roadshow</title>
+<title>Công Việc Siêu Thị</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -282,7 +282,7 @@ dialog h2{margin-bottom:14px;font-size:18px;line-height:24px;font-weight:700}
 <header class="topbar"><div class="topbar-in">
   <div class="brand">
     <svg class="mark" width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect width="26" height="26" rx="6" fill="#ffd400"/><rect x="5" y="15" width="3" height="6" fill="#1668c7"/><rect x="9" y="12" width="3" height="9" fill="#1668c7"/><rect x="13" y="9" width="3" height="12" fill="#1668c7"/><rect x="17" y="5" width="4" height="16" fill="#1668c7"/></svg>
-    <span>Lịch siêu thị</span>
+    <span>Công Việc</span>
   </div>
   <nav class="tabs" aria-label="Chức năng">
     <button class="tab" id="tabCa">Phân ca</button>
@@ -1122,8 +1122,14 @@ async function chupVung(vung,tieuDe,tenFile,sua,rong){
     const ban=vung.cloneNode(true),goc=dd.getElementById("chupGoc");goc.append(dd.adoptNode(ban));
     ban.querySelectorAll(".no-shot").forEach(x=>x.remove());if(sua)sua(ban);
     await (dd.fonts?dd.fonts.ready:Promise.resolve());await new Promise(r=>setTimeout(r,150));
-    const c=await html2canvas(goc,{scale:2,backgroundColor:"#fff",logging:false,windowWidth:rong});
-    const blob=await new Promise(r=>c.toBlob(r,"image/png"));
+    const dt=goc.offsetWidth*goc.offsetHeight;let net=4;
+    if(navigator.maxTouchPoints>0)while(net>2&&dt*net*net>16e6)net--;
+    let blob=null;
+    for(;net>=2&&!blob;net--){
+      const c=await html2canvas(goc,{scale:net,backgroundColor:"#fff",logging:false,windowWidth:rong});
+      blob=await new Promise(r=>c.toBlob(r,"image/png"));
+    }
+    if(!blob)throw new Error("Máy không chụp được ảnh này");
     chupXem(blob,tenFile+".png");
   }finally{f.remove()}
 }
