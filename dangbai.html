@@ -377,6 +377,48 @@ let chiToi=nho.get('chiToi')==='1',xemCu=false;
 const toiId=()=>{const v=$('chonNV').value;return !pin&&db.nhanVien.some(x=>x.id===v)?v:''};
 function batChiToi(){if(!toiId()){toast('Chọn tên của bạn ở đầu trang trước');$('chonNV').focus();return}chiToi=!chiToi;nho.set('chiToi',chiToi?'1':'0');ve()}
 function batCu(){xemCu=!xemCu;ve()}
+/* ---------- Chụp ảnh vùng ---------- */
+const CHUP={lib:null};
+function chupThuVien(){
+  if(window.html2canvas)return Promise.resolve();
+  return CHUP.lib=CHUP.lib||new Promise((ok,no)=>{
+    const s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+    s.onload=ok;s.onerror=()=>{CHUP.lib=null;no(new Error("Không tải được công cụ chụp ảnh, kiểm tra mạng"))};document.head.append(s);
+  });
+}
+async function chupVung(vung,tieuDe,tenFile,sua,rong){
+  rong=rong||1180;await chupThuVien();
+  const f=document.createElement("iframe");f.setAttribute("aria-hidden","true");f.style.cssText="position:fixed;left:-20000px;top:0;width:"+rong+"px;height:900px;border:0";document.body.append(f);
+  try{
+    const dd=f.contentDocument,kieu=[...document.querySelectorAll("style,link[rel=stylesheet]")].map(x=>x.outerHTML).join("");
+    dd.open();dd.write('<!doctype html><html lang="vi"><head><meta charset="utf-8">'+kieu+'<style>#chupGoc,#chupGoc *{letter-spacing:.01px!important;transition:none!important}</style></head><body style="margin:0;background:#fff"><div id="chupGoc" style="box-sizing:border-box;width:'+rong+'px;padding:20px;background:#fff"><div id="chupTen" style="margin-bottom:12px;font-size:20px;line-height:28px;font-weight:700"></div></div></body></html>');dd.close();
+    dd.getElementById("chupTen").textContent=tieuDe;
+    const ban=vung.cloneNode(true),goc=dd.getElementById("chupGoc");goc.append(dd.adoptNode(ban));
+    ban.querySelectorAll(".no-shot").forEach(x=>x.remove());if(sua)sua(ban);
+    await (dd.fonts?dd.fonts.ready:Promise.resolve());await new Promise(r=>setTimeout(r,150));
+    const c=await html2canvas(goc,{scale:2,backgroundColor:"#fff",logging:false,windowWidth:rong});
+    const blob=await new Promise(r=>c.toBlob(r,"image/png"));
+    chupXem(blob,tenFile+".png");
+  }finally{f.remove()}
+}
+function chupXem(blob,ten){
+  const url=URL.createObjectURL(blob),d=document.createElement("dialog"),nut=(t,fn,chinh)=>{const b=document.createElement("button");b.type="button";b.textContent=t;b.style.cssText="min-height:44px;padding:0 14px;border:1px solid #cdd3db;border-radius:6px;background:"+(chinh?"#ffd400":"#fff")+";color:#141a24;font:inherit;font-weight:700;cursor:pointer";b.onclick=fn;return b};
+  d.style.cssText="width:min(760px,calc(100vw - 24px));max-height:calc(100vh - 24px);padding:16px;border:0;border-radius:8px";
+  const anh=new Image();anh.src=url;anh.alt="Ảnh đã chụp";anh.style.cssText="display:block;width:100%;max-height:60vh;object-fit:contain;background:#f2f4f7";
+  const hang=document.createElement("div");hang.style.cssText="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px";
+  const file=new File([blob],ten,{type:"image/png"});
+  if(navigator.canShare&&navigator.canShare({files:[file]}))hang.append(nut("Gửi",async()=>{try{await navigator.share({files:[file]})}catch(e){}},true));
+  if(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write)hang.append(nut("Chép ảnh",async()=>{try{await navigator.clipboard.write([new ClipboardItem({"image/png":blob})]);toast("Đã chép ảnh, dán vào Zalo bằng Ctrl + V")}catch(e){toast("Không chép được, hãy bấm Tải ảnh")}},!hang.children.length));
+  hang.append(nut("Tải ảnh",()=>{const a=document.createElement("a");a.href=url;a.download=ten;a.click()}),nut("Đóng",()=>d.close()));
+  d.onclose=()=>{URL.revokeObjectURL(url);d.remove()};
+  d.append(anh,hang);document.body.append(d);d.showModal();
+}
+async function chupLich(){
+  const b=$('nutChup');b.disabled=true;b.textContent='Đang chụp…';
+  try{await chupVung(document.querySelector('.thang'),'Lịch đăng bài tháng '+(thang.getMonth()+1)+'/'+thang.getFullYear(),'lich-dang-bai-'+ymd(thang).slice(0,7),x=>{x.classList.add('hien-cu');x.querySelectorAll('.otrong').forEach(e=>{e.style.setProperty('border','1px solid #e3e7ec','important');e.style.setProperty('border-image','none','important');e.style.setProperty('outline','none','important');e.style.setProperty('box-shadow','none','important')})},1320)}
+  catch(e){toast(e.message||'Chưa chụp được')}
+  const n=$('nutChup');if(n){n.disabled=false;n.textContent='Chụp ảnh'}
+}
 function veLich(){
   const toi=toiId(),loc=chiToi&&!!toi;let soCu=0,conLai=0;
   const n=homNay(),homnay=db.baiDang.filter(b=>b.ngay===n).sort(sapXep);
@@ -408,7 +450,7 @@ function veLich(){
   <div class="the dem-doc"><div><b>${homnay.filter(b=>tt(b)==='xong').length}/${homnay.length}</b><span>Hôm nay đã đăng</span></div><div><b style="color:${treDs.length?'var(--do)':'inherit'}">${treDs.length}</b><span>Quá giờ chưa đăng</span></div></div></div>
   <div class="the"><div class="hang gian" style="margin-bottom:10px">
     <div class="hang"><button class="nut" onclick="doiThang(-1)" aria-label="Tháng trước">‹</button><b>Tháng ${mo+1}/${y}</b><button class="nut" onclick="doiThang(1)" aria-label="Tháng sau">›</button></div>
-    <div class="hang"><button class="nut" onclick="chepTuan()">Sao chép lịch 7 ngày</button>${pin?`<button class="nut chinh" onclick="moBai()">Thêm bài</button>`:`<button class="nut ${loc?'chinh':''}" aria-pressed="${loc}" onclick="batChiToi()">Chỉ bài của tôi</button>`}</div></div>
+    <div class="hang"><button class="nut" onclick="chepTuan()">Sao chép lịch 7 ngày</button><button class="nut" id="nutChup" onclick="chupLich()">Chụp ảnh</button>${pin?`<button class="nut chinh" onclick="moBai()">Thêm bài</button>`:`<button class="nut ${loc?'chinh':''}" aria-pressed="${loc}" onclick="batChiToi()">Chỉ bài của tôi</button>`}</div></div>
   ${soCu?`<button class="nut nut-cu chi-dt" aria-expanded="${xemCu}" onclick="batCu()">${xemCu?'Ẩn':'Xem'} ${soCu} ngày đã qua</button>`:''}
   ${loc&&!conLai?'<div class="trong chi-dt">Bạn không còn bài nào trong các ngày này.</div>':''}
   <div class="thang ${xemCu?'hien-cu':''}">${o.join('')}</div>
