@@ -83,6 +83,9 @@ button.gio-the{cursor:pointer}button.gio-the:hover{background:var(--to)}
 .chip:hover{filter:brightness(.96)}
 .chip span,.otrong{overflow:hidden;text-overflow:ellipsis}
 .chip b{flex:none;font-weight:700}
+.chip.cua-toi{font-weight:700;box-shadow:inset 3px 0 0 currentColor}
+.gio-the.cua-toi{border-color:var(--chinh);box-shadow:inset 3px 0 0 var(--chinh)}
+.chi-dt{display:none}
 .otrong{background:none;color:#6b7684;box-shadow:inset 0 0 0 1px var(--vien)}
 button.otrong{cursor:pointer}
 button.otrong:hover{background:var(--to)}
@@ -99,8 +102,23 @@ table{width:100%;border-collapse:collapse}
 th,td{padding:10px 8px;border-top:1px solid var(--vien);text-align:left;font-size:14px}
 th{color:var(--mo);font-size:12px;font-weight:500;border-top:0;padding-top:0}
 td.so-p,th.so-p{text-align:right}
+.cuon-bang{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.hop-dau{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:12px 12px 6px 20px}
+.hop-dau h3{margin:8px 0 0!important}
+.nut-x{flex:none;width:44px;height:44px;border:0;border-radius:var(--r2);background:none;cursor:pointer;font-size:24px;line-height:1;color:var(--mo)}
+.nut-x:hover{background:var(--to)}
+.hop-than{flex:1;min-height:0;overflow:auto;padding:6px 20px 12px}
+.hop-cuoi{display:flex;flex-wrap:wrap;gap:8px;padding:12px 20px;border-top:1px solid var(--vien)}
+details.phu{border:1px solid var(--vien);border-radius:var(--r2);padding:0 12px;margin-bottom:12px}
+details.phu summary{display:flex;align-items:center;min-height:44px;cursor:pointer;font-weight:500}
+details.phu[open]{padding-bottom:12px}
+details.phu summary::-webkit-details-marker{display:none}
+details.phu summary{justify-content:space-between;list-style:none}
+details.phu summary::after{content:"+";font-size:20px;color:var(--mo)}
+details.phu[open] summary::after{content:"\2212"}
+.nut.rong{width:100%}
 .lop{position:fixed;inset:0;background:rgba(15,25,35,.45);display:flex;align-items:flex-start;justify-content:center;padding:24px 12px;overflow:auto;z-index:20}
-.hop{background:var(--the);border-radius:12px;padding:20px;width:100%;max-width:560px;box-shadow:0 16px 40px rgba(15,25,35,.22)}
+.hop{display:flex;flex-direction:column;max-height:calc(100vh - 48px);background:var(--the);border-radius:12px;width:100%;max-width:560px;box-shadow:0 16px 40px rgba(15,25,35,.22)}
 .hop h3{margin:0 0 12px;font-size:18px;font-weight:700}
 .nd{white-space:pre-wrap;background:var(--to);border-radius:var(--r2);padding:10px 12px;font-size:14px;margin-bottom:10px}
 #toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#14202e;color:#fff;padding:9px 15px;border-radius:var(--r2);z-index:30;max-width:92vw;display:none;box-shadow:0 8px 24px rgba(15,25,35,.25)}
@@ -124,6 +142,16 @@ a{color:var(--chinh)}
  .dem-doc div{flex:1;padding:12px 0}
  .dem-doc div+div{border-top:0;padding-left:16px}
  .thang{display:block;border:0;background:none}
+ .chi-dt{display:block}
+ .nut{min-height:44px}
+ .nut[aria-label]{min-width:44px}
+ input:not([type=checkbox]),select,textarea{font-size:16px!important;min-height:44px}
+ input[type=checkbox]{width:22px;height:22px}
+ label.chon{min-height:44px;margin-bottom:0}
+ .ban select{height:44px}
+ .chip,.otrong{min-height:44px}
+ .nut.nut-cu{width:100%;margin-bottom:8px}
+ .thang:not(.hien-cu) .ngay.da-qua,.ngay.khong-bai{display:none}
  .ngay.ngoai{display:none}
  .ngay{min-height:0;border:1px solid var(--vien);border-radius:var(--r2);margin-bottom:8px;padding:10px}
  .ngay.homnay{border-color:var(--chinh)}
@@ -135,7 +163,22 @@ a{color:var(--chinh)}
  .gio-the{display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 10px}
  .gio-the>b{font-size:16px;margin:0}.nguoi{margin:0}
  .so{grid-template-columns:repeat(2,minmax(0,1fr))}
+ th,td{padding:8px 5px}
+ td .nguoi span:last-child{white-space:normal;overflow-wrap:anywhere}
  .so div:last-child:nth-child(odd){grid-column:1/-1}
+}
+ @media(max-width:560px){
+ .lop{padding:0}
+ .hop{max-width:none;min-height:100vh;min-height:100dvh;max-height:100vh;max-height:100dvh;border-radius:0}
+ .hop-cuoi{padding-bottom:max(12px,env(safe-area-inset-bottom))}
+ .hop-cuoi .nut{flex:1}
+ .gio-the{min-height:44px}
+}
+@media(max-width:400px){
+ .thuong b{display:none}
+ .thuong{margin-right:0}
+ .ban{flex:1;min-width:0}
+ .ban select{max-width:none}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
@@ -330,7 +373,12 @@ function veDangNhap(){
 async function dangNhap(){const c=pin;pin=$('oPin').value;try{await api('login');tab='lich';ve()}catch(e){pin=c;toast(e.message)}}
 
 /* ===== LỊCH ===== */
+let chiToi=nho.get('chiToi')==='1',xemCu=false;
+const toiId=()=>{const v=$('chonNV').value;return !pin&&db.nhanVien.some(x=>x.id===v)?v:''};
+function batChiToi(){if(!toiId()){toast('Chọn tên của bạn ở đầu trang trước');$('chonNV').focus();return}chiToi=!chiToi;nho.set('chiToi',chiToi?'1':'0');ve()}
+function batCu(){xemCu=!xemCu;ve()}
 function veLich(){
+  const toi=toiId(),loc=chiToi&&!!toi;let soCu=0,conLai=0;
   const n=homNay(),homnay=db.baiDang.filter(b=>b.ngay===n).sort(sapXep);
   const treDs=db.baiDang.filter(b=>tt(b)==='tre');
   const y=thang.getFullYear(),mo=thang.getMonth(),dau=new Date(y,mo,1),lui=(dau.getDay()+6)%7,khung=gioDS();
@@ -341,24 +389,30 @@ function veLich(){
     if(d.getMonth()!==mo){o.push('<div class="ngay ngoai"></div>');continue}
     const cn=[0,6].includes(d.getDay())?'cuoi-tuan':'';
     const k=ymd(d),bai=db.baiDang.filter(b=>b.ngay===k);
+    const co=bai.some(b=>b.nvId===toi),an=loc&&!co,qua=k<n&&k.slice(0,7)===n.slice(0,7);
+    if(qua&&!an)soCu++;
+    if(!an&&(!qua||xemCu))conLai++;
     const gios=[...new Set([...khung,...bai.map(b=>b.gio)])].sort();
     const dong=gios.map(g=>{
-      const ds=bai.filter(b=>b.gio===g);
-      if(ds.length)return ds.map(b=>`<button class="chip s-${tt(b)}" onclick="moBai('${esc(b.id)}')" title="${esc(tenNV(b.nvId))}: ${TT_NHAN[tt(b)]}"><span>${esc(b.gio)} ${esc(tenNV(b.nvId))}</span><b>${tick(b)}</b></button>`).join('');
+      const ds=bai.filter(b=>b.gio===g&&(!loc||b.nvId===toi));
+      if(loc&&!ds.length)return'';
+      if(ds.length)return ds.map(b=>`<button class="chip s-${tt(b)} ${b.nvId===toi?'cua-toi':''}" onclick="moBai('${esc(b.id)}')" title="${esc(tenNV(b.nvId))}: ${TT_NHAN[tt(b)]}"><span>${esc(b.gio)} ${esc(tenNV(b.nvId))}</span><b>${tick(b)}</b></button>`).join('');
       return pin?`<button class="otrong" onclick="moMoi('${k}','${esc(g)}')">${esc(g)} Thêm</button>`:`<div class="otrong">${esc(g)} Chưa phân</div>`;
     }).join('');
-    o.push(`<div class="ngay ${cn} ${k===n?'homnay':''}"><div class="so-ngay">${thuNgay(k)}</div>${dong}</div>`);
+    o.push(`<div class="ngay ${cn} ${k===n?'homnay':''} ${qua?'da-qua':''} ${an?'khong-bai':''}"><div class="so-ngay">${thuNgay(k)}</div>${dong}</div>`);
   }
-  const ba=khung.slice(0,3).map(g=>{const b=homnay.find(x=>x.gio===g);return b?`<button class="gio-the" onclick="moBai('${esc(b.id)}')"><b>${esc(g)}</b><div class="nguoi">${avatar(b.nvId,tenNV(b.nvId))}<span>${esc(tenNV(b.nvId))}</span></div>${nhan(b)}</button>`:`<div class="gio-the"><b>${esc(g)}</b><div class="nguoi"><span>Chưa phân</span></div></div>`}).join('');
+  const ba=khung.slice(0,3).map(g=>{const b=homnay.find(x=>x.gio===g);return b?`<button class="gio-the ${b.nvId===toi?'cua-toi':''}" onclick="moBai('${esc(b.id)}')"><b>${esc(g)}</b><div class="nguoi">${avatar(b.nvId,tenNV(b.nvId))}<span>${esc(tenNV(b.nvId))}</span></div>${nhan(b)}</button>`:`<div class="gio-the"><b>${esc(g)}</b><div class="nguoi"><span>Chưa phân</span></div></div>`}).join('');
   while(o.length%7)o.push('<div class="ngay ngoai"></div>');
   $('noiDung').innerHTML=`
   <div class="homnay-khoi"><div class="the"><h2>Hôm nay, ${thuNgay(n)}</h2><div class="ba-gio">${ba}</div></div>
   <div class="the dem-doc"><div><b>${homnay.filter(b=>tt(b)==='xong').length}/${homnay.length}</b><span>Hôm nay đã đăng</span></div><div><b style="color:${treDs.length?'var(--do)':'inherit'}">${treDs.length}</b><span>Quá giờ chưa đăng</span></div></div></div>
   <div class="the"><div class="hang gian" style="margin-bottom:10px">
     <div class="hang"><button class="nut" onclick="doiThang(-1)" aria-label="Tháng trước">‹</button><b>Tháng ${mo+1}/${y}</b><button class="nut" onclick="doiThang(1)" aria-label="Tháng sau">›</button></div>
-    <div class="hang"><button class="nut" onclick="chepTuan()">Sao chép lịch 7 ngày</button>${pin?`<button class="nut chinh" onclick="moBai()">Thêm bài</button>`:''}</div></div>
-  <div class="thang">${o.join('')}</div>
-  <div class="ghichu"><span><i class="nhan s-tao">${V1}</i>Đã tạo bài</span><span><i class="nhan s-xong">${V2}</i>Đã đăng</span><span><i class="nhan s-tre">08:00</i>Quá giờ chưa đăng</span></div></div>`;
+    <div class="hang"><button class="nut" onclick="chepTuan()">Sao chép lịch 7 ngày</button>${pin?`<button class="nut chinh" onclick="moBai()">Thêm bài</button>`:`<button class="nut ${loc?'chinh':''}" aria-pressed="${loc}" onclick="batChiToi()">Chỉ bài của tôi</button>`}</div></div>
+  ${soCu?`<button class="nut nut-cu chi-dt" aria-expanded="${xemCu}" onclick="batCu()">${xemCu?'Ẩn':'Xem'} ${soCu} ngày đã qua</button>`:''}
+  ${loc&&!conLai?'<div class="trong chi-dt">Bạn không còn bài nào trong các ngày này.</div>':''}
+  <div class="thang ${xemCu?'hien-cu':''}">${o.join('')}</div>
+  <div class="ghichu"><span><i class="nhan s-tao">${V1}</i>Đã tạo bài</span><span><i class="nhan s-xong">${V2}</i>Đã đăng</span><span><i class="nhan s-tre">08:00</i>Quá giờ chưa đăng</span>${toi?'<span><i class="nhan s-cho" style="font-weight:700;box-shadow:inset 3px 0 0 currentColor">Bạn</i>Bài của bạn</span>':''}</div></div>`;
 }
 function doiThang(n){thang.setMonth(thang.getMonth()+n);ve()}
 function chepTuan(){
@@ -379,7 +433,7 @@ function veTongQuan(){
   $('noiDung').innerHTML=`<div class="hang" style="margin-bottom:12px"><button class="nut" onclick="doiThang(-1)" aria-label="Tháng trước">‹</button><b>Tháng ${thang.getMonth()+1}/${thang.getFullYear()}</b><button class="nut" onclick="doiThang(1)" aria-label="Tháng sau">›</button></div>
   ${toi?`<div class="so"><div><b>${t.tong}</b><span>Lần đăng của bạn</span></div><div><b>${t.xong}</b><span>Đã đăng</span></div><div><b>${t.tong-t.xong}</b><span>Còn lại</span></div></div>
   <div class="the"><h2>Lịch của bạn</h2>${cua.map(b=>`<div class="dong" onclick="moBai('${esc(b.id)}')"><div><b>${thuNgay(b.ngay)}, ${esc(b.gio)}</b><small>${esc((b.chuDe||'Chưa có chủ đề').split('\n')[0])}</small></div>${nhan(b)}</div>`).join('')||'<div class="trong">Tháng này bạn chưa có lịch.</div>'}</div>`:'<div class="the trong">Chọn tên của bạn để xem lịch riêng.</div>'}
-  <div class="the"><h2>Cả siêu thị</h2>${hang.length?`<table><tr><th>Nhân viên</th><th class="so-p">Số lần đăng</th><th class="so-p">Đã đăng</th><th class="so-p">Còn lại</th></tr>${hang.map(h=>`<tr><td><div class="nguoi" style="margin:0">${avatar(h.n.id,h.n.ten)}<span>${esc(h.n.ten)}</span></div></td><td class="so-p">${h.tong}</td><td class="so-p">${h.xong}</td><td class="so-p">${h.tong-h.xong}</td></tr>`).join('')}</table>`:'<div class="trong">Tháng này chưa có lịch.</div>'}</div>`;
+  <div class="the"><h2>Cả siêu thị</h2>${hang.length?`<div class="cuon-bang"><table><tr><th>Nhân viên</th><th class="so-p">Số lần đăng</th><th class="so-p">Đã đăng</th><th class="so-p">Còn lại</th></tr>${hang.map(h=>`<tr><td><div class="nguoi" style="margin:0">${avatar(h.n.id,h.n.ten)}<span>${esc(h.n.ten)}</span></div></td><td class="so-p">${h.tong}</td><td class="so-p">${h.xong}</td><td class="so-p">${h.tong-h.xong}</td></tr>`).join('')}</table></div>`:'<div class="trong">Tháng này chưa có lịch.</div>'}</div>`;
 }
 
 /* ===== THỐNG KÊ ===== */
@@ -407,8 +461,8 @@ function veThongKe(){
   $('noiDung').innerHTML=`<div class="hang gian" style="margin-bottom:12px"><div class="hang"><button class="nut" onclick="doiThang(-1)" aria-label="Tháng trước">‹</button><b>Tháng ${thang.getMonth()+1}/${thang.getFullYear()}</b><button class="nut" onclick="doiThang(1)" aria-label="Tháng sau">›</button></div>
   <label class="chon" style="margin:0">Cho phép trễ<input type="number" min="0" step="5" value="${phut}" onchange="doiPhutTre(this.value)" aria-label="Số phút cho phép trễ" style="width:74px;padding:6px 8px;border:1px solid var(--vien);border-radius:7px">phút</label></div>
   <div class="so"><div><b>${bai.length}</b><span>Bài trong tháng</span></div><div><b>${dung}</b><span>Đăng đúng giờ</span></div><div><b style="color:${tre?'var(--cam)':'inherit'}">${tre}</b><span>Đăng trễ</span></div><div><b style="color:${khong?'var(--do)':'inherit'}">${khong}</b><span>Không đăng</span></div><div><b>${tong?Math.round(dung/tong*100)+'%':'-'}</b><span>Tỉ lệ đúng giờ đến nay</span></div></div>
-  <div class="the"><h2>Theo nhân viên</h2>${hang.length?`<table><tr><th>Nhân viên</th><th class="so-p">Giao</th><th class="so-p">Đúng giờ</th><th class="so-p">Trễ</th><th class="so-p">Không đăng</th><th class="so-p">Tỉ lệ</th></tr>${hang.map(h=>`<tr><td><div class="nguoi" style="margin:0">${avatar(h.n.id,h.n.ten)}<span>${esc(h.n.ten)}</span></div></td><td class="so-p">${h.giao}</td><td class="so-p">${h.a}</td><td class="so-p">${h.t}</td><td class="so-p">${h.k}</td><td class="so-p">${h.tl===null?'-':h.tl+'%'}</td></tr>`).join('')}</table>`:'<div class="trong">Tháng này chưa có lịch.</div>'}</div>
-  <div class="the"><h2>Chi tiết đăng trễ, không đăng (${vp.length})</h2>${vp.length?`<table><tr><th>Lịch đăng</th><th>Nhân viên</th><th>Kết quả</th></tr>${vp.map(x=>`<tr style="cursor:pointer" onclick="moBai('${esc(x.b.id)}')"><td>${dmy(x.b.ngay).slice(0,5)} ${esc(x.b.gio)}</td><td>${esc(tenNV(x.b.nvId))}</td><td>${x.loai==='tre'?'<span class="nhan s-tao">Trễ '+doDai(x.phut)+'</span>':x.loai==='khong'?'<span class="nhan s-tre">Không đăng</span>':'<span class="nhan s-loi">Lỗi tự đăng</span>'}</td></tr>`).join('')}</table>`:'<div class="trong">Không có bài trễ trong tháng này.</div>'}</div>`;
+  <div class="the"><h2>Theo nhân viên</h2>${hang.length?`<div class="cuon-bang"><table><tr><th>Nhân viên</th><th class="so-p">Giao</th><th class="so-p">Đúng giờ</th><th class="so-p">Trễ</th><th class="so-p">Không đăng</th><th class="so-p">Tỉ lệ</th></tr>${hang.map(h=>`<tr><td><div class="nguoi" style="margin:0">${avatar(h.n.id,h.n.ten)}<span>${esc(h.n.ten)}</span></div></td><td class="so-p">${h.giao}</td><td class="so-p">${h.a}</td><td class="so-p">${h.t}</td><td class="so-p">${h.k}</td><td class="so-p">${h.tl===null?'-':h.tl+'%'}</td></tr>`).join('')}</table></div>`:'<div class="trong">Tháng này chưa có lịch.</div>'}</div>
+  <div class="the"><h2>Chi tiết đăng trễ, không đăng (${vp.length})</h2>${vp.length?`<div class="cuon-bang"><table><tr><th>Lịch đăng</th><th>Nhân viên</th><th>Kết quả</th></tr>${vp.map(x=>`<tr style="cursor:pointer" onclick="moBai('${esc(x.b.id)}')"><td>${dmy(x.b.ngay).slice(0,5)} ${esc(x.b.gio)}</td><td>${esc(tenNV(x.b.nvId))}</td><td>${x.loai==='tre'?'<span class="nhan s-tao">Trễ '+doDai(x.phut)+'</span>':x.loai==='khong'?'<span class="nhan s-tre">Không đăng</span>':'<span class="nhan s-loi">Lỗi tự đăng</span>'}</td></tr>`).join('')}</table></div>`:'<div class="trong">Không có bài trễ trong tháng này.</div>'}</div>`;
 }
 
 function vePhanLich(){
@@ -439,7 +493,7 @@ function xemXoay(){
   const a=Math.min(...Object.values(dem)),b=Math.max(...Object.values(dem));
   $('xKq').innerHTML=`<p>Tạo <b>${ds.length}</b> bài cho ${Object.keys(dem).length} nhân viên, mỗi người ${a===b?a:a+'–'+b} bài. Bài đã đăng hoặc đã có nội dung được giữ nguyên.</p>
   <div class="hang" style="margin-bottom:10px"><button class="nut chinh" onclick="luuXoay(this)">Lưu vào lịch</button><button class="nut" onclick="xemXoay()">Xáo lại</button></div>
-  <table><tr><th>Ngày</th><th>Giờ</th><th>Nhân viên</th><th>Chủ đề</th></tr>${ds.map(b=>`<tr><td>${dmy(b.ngay).slice(0,5)}</td><td>${b.gio}</td><td>${esc(tenNV(b.nvId))}</td><td>${esc(b.chuDe.split('\n')[0])}${b.coDinh?' <span class="nhan s-tao">Cố định</span>':''}</td></tr>`).join('')}</table>`;
+  <div class="cuon-bang"><table><tr><th>Ngày</th><th>Giờ</th><th>Nhân viên</th><th>Chủ đề</th></tr>${ds.map(b=>`<tr><td>${dmy(b.ngay).slice(0,5)}</td><td>${b.gio}</td><td>${esc(tenNV(b.nvId))}</td><td>${esc(b.chuDe.split('\n')[0])}${b.coDinh?' <span class="nhan s-tao">Cố định</span>':''}</td></tr>`).join('')}</table></div>`;
 }
 async function luuXoay(n){n.disabled=true;const r=await chay('replaceRange',banXoay,'Đã lưu vào lịch');if(r){const[y,m]=banXoay.from.split('-').map(Number);thang=new Date(y,m-1,1);tab='lich';ve()}else n.disabled=false}
 
@@ -519,6 +573,9 @@ async function chayNV(action,payload,tb){
 
 /* ===== CHI TIẾT BÀI ===== */
 function dong(){$('modal').innerHTML=''}
+let formGoc='';
+const giaTriForm=()=>[...$('modal').querySelectorAll('input:not([type=file]):not(#mMa),textarea,select')].map(e=>e.type==='checkbox'?e.checked:e.value).join('\u0001');
+function thuDong(){if(giaTriForm()===formGoc||confirm('Nội dung chưa lưu sẽ bị mất. Vẫn đóng?'))dong()}
 function moBai(id){
   const b=id?db.baiDang.find(x=>x.id===id):{...macDinh(),ngay:homNay(),gio:gioDS()[0]};
   if(!b)return;
@@ -527,25 +584,27 @@ function moBai(id){
 function moMoi(ngay,gio){moSua({...macDinh(),ngay,gio})}
 function moXem(b){
   const cuaToi=$('chonNV').value===b.nvId,link=linkAnToan(b.linkBai),sua=cuaToi&&b.trangThai!=='Đã đăng'&&b.trangThai!=='Đang đăng',ma=cuaToi&&!nho.get('maNV');
-  $('modal').innerHTML=`<div class="lop" onclick="if(event.target===this)dong()"><div class="hop"><h3>${thuNgay(b.ngay)}, ${esc(b.gio)} ${nhan(b)}</h3>
+  $('modal').innerHTML=`<div class="lop" onclick="if(event.target===this)thuDong()"><div class="hop"><div class="hop-dau"><h3>${thuNgay(b.ngay)}, ${esc(b.gio)} ${nhan(b)}</h3><button class="nut-x" aria-label="Đóng" onclick="thuDong()">×</button></div><div class="hop-than">
   <p style="margin:0 0 8px">Người đăng: <b>${esc(tenNV(b.nvId))}</b></p>
   ${b.chuDe?`<p style="margin:0 0 8px;white-space:pre-wrap">Chủ đề: ${esc(b.chuDe)}</p>`:''}
   ${b.loi?`<p class="nd" style="background:var(--do-nhat);color:#831c1e">${esc(b.loi)}</p>`:''}
   ${ma?`<label>Mã nhân viên<input id="mMa" type="password" autocomplete="off"></label>`:''}
-  ${sua?`<button class="nut" id="mLenh" style="margin-bottom:10px">Sao chép lệnh cho Claude</button>
-  <label>Thông tin thật về sản phẩm, giá, khuyến mãi (để Claude viết)<textarea id="mTT" style="min-height:64px"></textarea></label>
-  <label>Nội dung bài<textarea id="mND">${esc(b.noiDung)}</textarea></label>
+  ${sua?`<label>Nội dung bài<textarea id="mND">${esc(b.noiDung)}</textarea></label>
+  <details class="phu"><summary>Nhờ Claude viết giúp</summary>
+  <label>Thông tin thật về sản phẩm, giá, khuyến mãi<textarea id="mTT" style="min-height:64px"></textarea></label>
+  <button class="nut rong" id="mLenh">Sao chép lệnh cho Claude</button></details>
   <label>Chọn ảnh từ máy<input type="file" id="mFile" accept="image/*"></label>
   <label>Link ảnh<input id="mAnh" value="${esc(b.anhUrl)}"></label>
   <label class="chon" style="margin-bottom:12px"><input type="checkbox" id="mTu" ${b.tuDong?'checked':''}>Tự đăng lên fanpage đúng giờ</label>
-  <div class="hang" style="margin-bottom:16px"><button class="nut chinh" id="mLuu">Lưu bài</button><button class="nut" id="mDang">Đăng ngay</button><button class="nut" id="mTay">Tôi tự đăng trên Facebook</button></div>
+  <button class="nut rong" id="mTay" style="margin-bottom:12px">Tôi tự đăng trên Facebook</button>
   <div id="mTayKhoi" hidden><label>Link bài đã đăng<input id="mLink" type="url" placeholder="https://facebook.com/..."></label><label>Ghi chú<input id="mGC"></label><button class="nut chinh" id="mXong">Xác nhận đã đăng</button></div>`:`
   ${b.noiDung?`<div class="nd">${esc(b.noiDung)}</div><button class="nut" style="margin-bottom:10px" id="chepND">Sao chép nội dung</button>`:''}
   ${linkAnToan(b.anhUrl)?`<p style="margin:0 0 8px"><a href="${esc(b.anhUrl)}" target="_blank" rel="noopener">Xem ảnh</a></p>`:''}
   ${link?`<p style="margin:0 0 8px"><a href="${esc(link)}" target="_blank" rel="noopener">Mở bài đã đăng</a></p>`:''}
   ${cuaToi&&b.trangThai==='Đã đăng'?nhomTrongBai(b):''}
   ${!cuaToi&&tt(b)!=='xong'?`<p style="color:var(--mo);font-size:13px">Muốn tạo bài, hãy chọn đúng tên người đăng.</p>`:''}`}
-  <button class="nut" onclick="dong()">Đóng</button></div></div>`;
+  </div><div class="hop-cuoi">${sua?'<button class="nut chinh" id="mLuu">Lưu bài</button><button class="nut" id="mDang">Đăng ngay</button>':'<button class="nut" onclick="thuDong()">Đóng</button>'}</div></div></div>`;
+  formGoc=giaTriForm();
   if($('chepND'))$('chepND').onclick=()=>chep(b.noiDung);
   if(cuaToi&&b.trangThai==='Đã đăng')ganNhom(b);
   if(!sua)return;
@@ -559,13 +618,14 @@ function moXem(b){
 }
 function moSua(b){
   const opt=db.nhanVien.map(n=>`<option value="${esc(n.id)}" ${n.id===b.nvId?'selected':''}>${esc(n.ten)}</option>`).join('');
-  $('modal').innerHTML=`<div class="lop" onclick="if(event.target===this)dong()"><div class="hop"><h3>${b.id?'Sắp xếp bài':'Thêm bài'} ${b.id?nhan(b):''}</h3>
+  $('modal').innerHTML=`<div class="lop" onclick="if(event.target===this)thuDong()"><div class="hop"><div class="hop-dau"><h3>${b.id?'Sắp xếp bài':'Thêm bài'} ${b.id?nhan(b):''}</h3><button class="nut-x" aria-label="Đóng" onclick="thuDong()">×</button></div><div class="hop-than">
   ${b.loi?`<p class="nd" style="background:var(--do-nhat);color:#831c1e">${esc(b.loi)}</p>`:''}
   <div class="luoi2"><label>Ngày<input type="date" id="sNgay" value="${esc(b.ngay)}"></label><label>Giờ<input type="time" id="sGio" value="${esc(b.gio)}"></label><label>Người đăng<select id="sNV">${opt}</select></label><label>Trạng thái<select id="sTT">${[...new Set(['Chưa đăng','Đã đăng',b.trangThai||'Chưa đăng'])].map(t=>`<option ${t===b.trangThai?'selected':''}>${t}</option>`).join('')}</select></label></div>
   <label>Chủ đề<textarea id="sCD" style="min-height:76px">${esc(b.chuDe)}</textarea></label>
   ${b.noiDung?`<p style="margin:0 0 4px;color:var(--mo);font-size:13px">Bài do nhân viên viết${b.tuDong?', đã hẹn tự đăng':''}</p><div class="nd">${esc(b.noiDung)}</div>`:''}
   ${linkAnToan(b.linkBai)?`<p style="margin:0 0 10px"><a href="${esc(b.linkBai)}" target="_blank" rel="noopener">Mở bài đã đăng</a></p>`:''}
-  <div class="hang"><button class="nut chinh" id="sLuu">Lưu</button>${b.id?`<button class="nut do" id="sXoa">Xóa</button>`:''}<button class="nut" onclick="dong()">Đóng</button></div></div></div>`;
+  </div><div class="hop-cuoi"><button class="nut chinh" id="sLuu">Lưu</button>${b.id?`<button class="nut do" id="sXoa">Xóa</button>`:''}<button class="nut" onclick="thuDong()">Đóng</button></div></div></div>`;
+  formGoc=giaTriForm();
   $('sLuu').onclick=async()=>{const p={id:b.id,ngay:$('sNgay').value,gio:$('sGio').value,nvId:$('sNV').value,chuDe:$('sCD').value.trim(),trangThai:$('sTT').value};if(!p.ngay||!p.gio||!p.nvId)return toast('Thiếu ngày, giờ hoặc người đăng');if(await chay('savePost',p,'Đã lưu'))dong()};
   if(b.id)$('sXoa').onclick=async()=>{if(confirm('Xóa bài này?')&&await chay('deletePost',{id:b.id},'Đã xóa'))dong()};
 }
