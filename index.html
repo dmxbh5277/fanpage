@@ -1099,7 +1099,7 @@ function renderCaMob(){
   const head=el("div","mhead"),top=el("div","mtop");
   top.append(el("h1","","Phân ca"),storeSelect());head.append(top);
   const seg=el("div","mseg");
-  [["nhom","Cả nhóm"],["ngay","Theo ngày"],["toi","Của tôi"]].forEach(([k,t])=>{const b=btn("",t,()=>doiView(k));b.setAttribute("aria-pressed",state.view===k);seg.append(b)});
+  [["nhom","Theo tuần"],["ngay","Theo ngày"],["toi","Nhân viên"]].forEach(([k,t])=>{const b=btn("",t,()=>doiView(k));b.setAttribute("aria-pressed",state.view===k);seg.append(b)});
   head.append(seg);
   const wk=el("div","mweek"),p=btn("","‹",()=>doiTuan(-1)),n=btn("","›",()=>doiTuan(1));
   p.setAttribute("aria-label","Tuần trước");n.setAttribute("aria-label","Tuần sau");
@@ -1179,7 +1179,7 @@ function mobNgay(v,mon,sua){
 function mobToi(v,mon,sua){
   if(!state.employees.includes(state.me))state.me=state.employees[0];
   const me=state.me,c=el("select","store-sel"),h=el("div","mhead");
-  c.style.width="100%";c.style.maxWidth="none";c.style.height="44px";c.setAttribute("aria-label","Chọn nhân viên");
+  c.style.width="100%";c.style.maxWidth="none";c.style.flex="none";c.style.height="52px";c.style.padding="0 14px";c.setAttribute("aria-label","Chọn nhân viên");
   state.employees.forEach(n=>c.append(el("option","",n)));c.value=me;c.onchange=()=>{state.me=c.value;luuView("ca_me",c.value);render()};
   const t=el("div","mc-tiles"),a=el("div","main"),b=el("div");
   a.append(el("span","","Giờ công tuần này"),el("b","",fmtH(hoursWeek(me,mon))+" giờ"));
