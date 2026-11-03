@@ -282,6 +282,17 @@ dialog h2{margin-bottom:14px;font-size:18px;line-height:24px;font-weight:700}
 }
 @media (max-width:380px){.tab{padding:0 3px;font-size:12px}.tab[aria-current]::after{left:3px;right:3px}.topbar-in{gap:4px;padding:0 8px}#mgr{padding:0 6px;font-size:12px}}
 .tic{display:none}
+.hd-wrap{max-width:760px}
+.hd-wrap h1{margin-bottom:14px}
+.hd{margin-bottom:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-card)}
+.hd summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;padding:0 16px;cursor:pointer;font-size:16px;font-weight:700;list-style:none}
+.hd summary::-webkit-details-marker{display:none}
+.hd summary small{color:var(--muted);font-size:13px;font-weight:400;white-space:nowrap}
+.hd-body{padding:0 16px 14px;font-size:15px;line-height:23px}
+.hd-body p{margin:0 0 10px}
+.hd-body ol,.hd-body ul{margin:0 0 10px;padding-left:20px}
+.hd-body li{margin-bottom:4px}
+#tabHd[aria-current]{background:var(--active)}
 .tab[hidden]{display:none!important}
 .mhead{display:flex;flex-direction:column;gap:10px;margin-bottom:10px}
 .mtop{display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -337,6 +348,8 @@ dialog h2{margin-bottom:14px;font-size:18px;line-height:24px;font-weight:700}
 @media (max-width:640px){
   body{padding-bottom:72px}
   .topbar-in{height:52px;padding:0 16px}
+  .top-right .btn{padding:0 8px;height:40px;font-size:13px}
+  .brand span{white-space:nowrap}
   .topbar-in .mark{display:block}.brand span{display:inline}
   .tic{display:block}
   .tabs{position:fixed;left:0;right:0;bottom:0;z-index:8;display:flex;gap:0;height:64px;background:var(--surface);border-top:1px solid var(--border)}
@@ -369,10 +382,38 @@ dialog h2{margin-bottom:14px;font-size:18px;line-height:24px;font-weight:700}
     <button class="tab" id="tabQuy"><svg class="tic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 7h18v12H3zM3 7l3-3h12l3 3M16 13h2"/></svg>Quỹ</button>
     <button class="tab" id="tabBang"><svg class="tic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 5h16v14H4zM4 10h16M10 5v14"/></svg>Nhập liệu</button>
   </nav>
-  <div class="top-right"><button class="btn" id="mgr">Quản lý</button></div>
+  <div class="top-right"><button class="btn" id="tabHd">Hướng dẫn</button> <button class="btn" id="mgr">Quản lý</button></div>
 </div></header>
 <main class="canvas" id="view"></main>
 <div id="dbWrap" hidden></div>
+<section id="hdView" class="canvas hd-wrap" hidden><h1>Hướng dẫn sử dụng</h1>
+<details class="hd" open><summary>Bắt đầu nhanh<small>Mọi người</small></summary><div class="hd-body"><p>Web gồm các mục ở thanh menu. Nhân viên dùng không cần đăng nhập, chỉ cần mở link.</p>
+<ul><li><b>Phân ca:</b> sắp ca theo tuần, xem giờ công.</li><li><b>Roadshow:</b> tick buổi đã chạy.</li><li><b>Đăng bài:</b> soạn và đăng bài lên fanpage.</li><li><b>Quỹ:</b> xem và ghi khoản thu chi.</li><li><b>Nhập liệu:</b> ghi các việc phát sinh.</li></ul>
+<p>Chọn đúng siêu thị ở ô phía trên trước khi thao tác. Web sẽ nhớ lựa chọn trên máy của bạn.</p></div></details>
+<details class="hd"><summary>Phân ca<small>Nhân viên</small></summary><div class="hd-body"><ol><li>Chọn đúng tuần cần sắp.</li><li>Bấm vào ô của mình, chọn ca.</li><li>Sắp xong toàn bộ, bấm <b>Lưu</b> ở thanh đen.</li></ol>
+<p><b>Phải bấm Lưu</b> thì người khác mới thấy ca của bạn. Chưa lưu thì ca chỉ nằm trên máy đang dùng. Bấm <b>Hủy</b> để bỏ các thay đổi chưa lưu.</p>
+<p><b>Chọn nhiều ô:</b> bấm <b>Chọn nhiều</b>, bấm từng ô, hoặc bấm tên hay ngày để chọn cả dòng, cả cột. Sau đó bấm <b>Chọn ca</b> hoặc <b>Xóa ca</b>, rồi <b>Xong</b> và <b>Lưu</b>.</p>
+<p><b>Ca khác:</b> nếu ca không có trong danh sách, gõ vào ô <b>Ca khác</b> rồi bấm <b>Dùng ca này</b>. Mã gồm các số ca đã khai báo sẽ tự tính giờ, ví dụ 13 là ca 1 cộng ca 3. Mã dạng chữ như Họp tính 0 giờ.</p>
+<p><b>Trên điện thoại</b> có 3 chế độ: <b>Theo tuần</b> xem cả nhóm, <b>Theo ngày</b> xem ai làm giờ nào, <b>Nhân viên</b> xem lịch và giờ công của một người. Ở Theo tuần, bấm tên để xem giờ tuần và tháng.</p>
+<p>Tuần <b>Đã khóa</b> thì nhân viên không sửa được. Cần đổi ca, hãy báo quản lý.</p></div></details>
+<details class="hd"><summary>Roadshow<small>Nhân viên</small></summary><div class="hd-body"><ol><li>Chọn lịch chạy, rồi chọn ngày.</li><li>Tìm tên mình, tick ô <b>Sáng</b> hoặc <b>Chiều</b> đã chạy.</li></ol>
+<p>Tick được lưu ngay. Tổng kết bên cạnh tính số lần và chi phí của từng người. Lịch đã khóa thì không tick thêm được.</p></div></details>
+<details class="hd"><summary>Đăng bài<small>Nhân viên</small></summary><div class="hd-body"><ol><li>Trong tab Đăng bài, chọn tên của bạn ở ô <b>Bạn là</b>.</li><li>Bấm vào giờ của mình trên lịch.</li><li>Soạn nội dung và chọn ảnh. Nếu cần, dùng nút sao chép lệnh để nhờ Claude viết bài.</li><li>Chọn hẹn giờ tự đăng, đăng ngay, hoặc tự đăng tay rồi xác nhận.</li></ol>
+<p><b>Bài hẹn giờ:</b> web kiểm tra 15 phút một lần nên bài có thể lên trễ vài phút. Đăng thành công thì tự ghi nhận vào thống kê, không cần xác nhận thêm.</p>
+<p><b>Bài báo Lỗi:</b> mở bài xem lý do rồi đăng lại. Bài quá giờ hơn 6 tiếng sẽ không tự đăng.</p>
+<p><b>Hội nhóm:</b> web sao chép nội dung và mở nhóm, bạn tự dán, bấm Đăng trên Facebook, rồi quay lại xác nhận đã đăng.</p></div></details>
+<details class="hd"><summary>Quỹ<small>Nhân viên và quản lý</small></summary><div class="hd-body"><ol><li>Chọn <b>Thu</b> hoặc <b>Chi</b>.</li><li>Nhập ngày, nội dung, số tiền, ghi chú nếu có.</li><li>Bấm <b>Thêm</b>.</li></ol>
+<p>Bấm <b>Sửa</b> ở dòng cần sửa. <b>Xóa</b> cần đăng nhập quản lý. Tồn cuối tháng tự chuyển thành tồn đầu tháng sau.</p></div></details>
+<details class="hd"><summary>Nhập liệu<small>Nhân viên và quản lý</small></summary><div class="hd-body"><p>Dùng để ghi việc phát sinh như một bảng tính. Bấm vào ô rồi gõ, web tự lưu sau khoảng 1 giây. Xem chữ <b>Đã lưu</b> dưới tiêu đề.</p>
+<ul><li><b>Tab</b> sang ô phải, <b>Enter</b> xuống dòng, phím mũi tên để di chuyển.</li><li>Sao chép từ Excel, bấm vào ô bắt đầu rồi <b>Ctrl + V</b> để dán nhiều dòng.</li><li>Gõ đến dòng cuối, web tự thêm dòng mới.</li></ul>
+<p>Mỗi tháng là một bảng riêng, việc chưa xong không tự chuyển sang tháng sau.</p></div></details>
+<details class="hd"><summary>Chụp ảnh gửi nhóm<small>Mọi người</small></summary><div class="hd-body"><ol><li>Bấm <b>Chụp ảnh</b> ở vùng cần gửi.</li><li>Xem ảnh, rồi chọn <b>Chép ảnh</b>, <b>Gửi</b> hoặc <b>Tải ảnh</b>.</li><li>Trên máy tính, chép xong dán vào Zalo bằng <b>Ctrl + V</b>.</li></ol>
+<p>Để ảnh nét, hãy gửi ảnh chất lượng gốc nếu Zalo có tùy chọn này.</p></div></details>
+<details class="hd"><summary>Quản lý<small>Quản lý</small></summary><div class="hd-body"><p>Bấm <b>Quản lý</b>, đăng nhập bằng Gmail đã được cấp quyền. Bấm <b>Thoát</b> khi xong.</p>
+<ul><li><b>Khai báo siêu thị:</b> mã đã lưu thì không đổi được, chỉ đổi được tên.</li><li><b>Khai báo nhân viên:</b> mỗi dòng một người, riêng từng siêu thị. Nhân viên siêu thị 5277 tự chép sang web đăng bài mỗi giờ.</li><li><b>Khai báo ca:</b> nhập giờ công từng ca, rồi mã ca và màu. Giờ của mã ca tự cộng.</li><li><b>Khóa tuần:</b> khi nhân viên sắp xong. Quản lý vẫn sửa được.</li><li><b>Roadshow:</b> bấm <b>Tạo lịch chạy</b>, chọn ngày và siêu thị tham gia, nhập chi phí, khóa lịch khi chốt.</li><li><b>Thống kê:</b> xem số ca từng người và chênh lệch ngày cuối tuần.</li><li><b>Khai báo cột:</b> ở tab Nhập liệu, đổi cột của bảng.</li></ul>
+<p>Dữ liệu sao lưu về Google Sheet mỗi ngày, trong các tab bắt đầu bằng FB_.</p></div></details>
+<details class="hd"><summary>Khi gặp sự cố<small>Mọi người</small></summary><div class="hd-body"><ul><li><b>Không thấy dữ liệu mới:</b> tải lại trang, trên máy tính bấm Ctrl + F5.</li><li><b>Mạng yếu, chưa lưu được:</b> ca vẫn còn trên máy, chờ có mạng rồi bấm <b>Lưu</b> lại.</li><li><b>Báo không có quyền:</b> tuần hoặc lịch đã khóa, hãy báo quản lý.</li><li><b>Hai người sửa cùng một ô:</b> người lưu sau sẽ ghi đè, nên kiểm tra lại lịch sau khi lưu.</li></ul></div></details>
+</section>
 
 <dialog id="picker" aria-labelledby="pickTitle">
   <h2 id="pickTitle"></h2>
@@ -641,7 +682,9 @@ function render(){
   });
   $("tabTk").hidden=!state.pw;
   $("mgr").textContent=state.pw?"Thoát":"Quản lý";
-  $("view").hidden=state.tab==="db";$("dbWrap").hidden=state.tab!=="db";
+  $("view").hidden=state.tab==="db"||state.tab==="hd";$("dbWrap").hidden=state.tab!=="db";$("hdView").hidden=state.tab!=="hd";
+  if(state.tab==="hd"){$("tabHd").setAttribute("aria-current","page");return}
+  $("tabHd").removeAttribute("aria-current");
   if(state.tab==="db"){
     if(!$("dbWrap").firstChild){const f=el("iframe");f.src="dangbai.html";f.title="Lịch đăng bài";$("dbWrap").append(f)}
     return;
@@ -1594,6 +1637,7 @@ $("tabCa").onclick=()=>setTab("ca");
 $("tabRs").onclick=()=>setTab("rs");
 $("tabTk").onclick=()=>setTab("tk");
 $("tabDb").onclick=()=>setTab("db");
+$("tabHd").onclick=()=>setTab("hd");
 $("tabQuy").onclick=()=>setTab("quy");
 $("tabBang").onclick=()=>setTab("bang");
 $("bangAddCol").onclick=()=>bangHangCot({});
