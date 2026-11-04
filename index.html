@@ -102,6 +102,16 @@ th{font-weight:500;color:var(--muted);font-size:var(--fs-small)}
 .check-t th.mid,.check-t td.mid{width:96px;padding:0;text-align:center}
 .check-t td{height:48px;padding:0 16px;border-bottom:1px solid var(--rule)}
 .check-t td.name{font-weight:500}
+.check-t th small{display:block;font-size:11px;line-height:14px;font-weight:400;white-space:nowrap}
+.check-t th{height:44px}
+.bu-day{padding:10px 0;border-top:1px solid var(--rule)}
+.bu-day:first-child{border-top:0;padding-top:0}
+.bu-ten{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;font-weight:700}
+.bu-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr) 40px;gap:6px;margin-bottom:6px}
+.bu-row input{min-width:0;height:40px;padding:0 6px;border:1px solid var(--control);border-radius:var(--radius-control);background:#fff}
+.bu-row .x{height:40px;border:1px solid var(--control);border-radius:var(--radius-control);background:#fff;color:var(--negative)}
+.admin .full{grid-column:1/-1}
+@media(max-width:640px){.bu-row{grid-template-columns:repeat(12,minmax(0,1fr))}.bu-row input:nth-child(1){grid-column:1/span 10;grid-row:1}.bu-row .x{grid-column:11/span 2;grid-row:1}.check-t th.mid{min-width:84px;padding-inline:3px}.bu-row input:nth-child(2),.bu-row input:nth-child(3){grid-column:span 6;grid-row:2}}
 .tick{display:flex;align-items:center;justify-content:center;width:100%;height:47px;cursor:pointer}
 .tick:hover{background:var(--blue-pale)}
 .tick.off{cursor:default;background:none}
@@ -396,10 +406,10 @@ dialog h2{margin-bottom:14px;font-size:18px;line-height:24px;font-weight:700}
 <p><b>Ca khác:</b> nếu ca không có trong danh sách, gõ vào ô <b>Ca khác</b> rồi bấm <b>Dùng ca này</b>. Mã gồm các số ca đã khai báo sẽ tự tính giờ, ví dụ 13 là ca 1 cộng ca 3. Mã dạng chữ như Họp tính 0 giờ.</p>
 <p><b>Trên điện thoại</b> có 3 chế độ: <b>Theo tuần</b> xem cả nhóm, <b>Theo ngày</b> xem ai làm giờ nào, <b>Nhân viên</b> xem lịch và giờ công của một người. Ở Theo tuần, bấm tên để xem giờ tuần và tháng.</p>
 <p>Tuần <b>Đã khóa</b> thì nhân viên không sửa được. Cần đổi ca, hãy báo quản lý.</p></div></details>
-<details class="hd"><summary>Roadshow<small>Nhân viên</small></summary><div class="hd-body"><ol><li>Chọn lịch chạy, rồi chọn ngày.</li><li>Tìm tên mình, tick ô <b>Sáng</b> hoặc <b>Chiều</b> đã chạy.</li></ol>
+<details class="hd"><summary>Roadshow<small>Nhân viên</small></summary><div class="hd-body"><ol><li>Chọn lịch chạy, rồi chọn ngày.</li><li>Xem giờ từng buổi, tìm tên mình và tick đúng buổi đã chạy.</li></ol>
 <p>Tick được lưu ngay. Tổng kết bên cạnh tính số lần và chi phí của từng người. Lịch đã khóa thì không tick thêm được.</p></div></details>
-<details class="hd"><summary>Đăng bài<small>Nhân viên</small></summary><div class="hd-body"><ol><li>Trong tab Đăng bài, chọn tên của bạn ở ô <b>Bạn là</b>.</li><li>Bấm vào giờ của mình trên lịch.</li><li>Soạn nội dung và chọn ảnh. Nếu cần, dùng nút sao chép lệnh để nhờ Claude viết bài.</li><li>Chọn hẹn giờ tự đăng, đăng ngay, hoặc tự đăng tay rồi xác nhận.</li></ol>
-<p><b>Bài hẹn giờ:</b> web kiểm tra 15 phút một lần nên bài có thể lên trễ vài phút. Đăng thành công thì tự ghi nhận vào thống kê, không cần xác nhận thêm.</p>
+<details class="hd"><summary>Đăng bài<small>Nhân viên</small></summary><div class="hd-body"><ol><li>Trong tab Đăng bài, chọn tên của bạn ở ô <b>Bạn là</b>.</li><li>Bấm vào giờ của mình trên lịch.</li><li>Soạn nội dung và chọn ảnh. Nếu cần, dùng nút sao chép lệnh để nhờ Claude viết bài.</li><li>Chọn <b>Page tự đăng</b> rồi nhập <b>Giờ tự đăng</b>, không muộn hơn giờ quản lý giao. Hoặc đăng ngay, hoặc tự đăng tay rồi xác nhận.</li></ol>
+<p><b>Bài hẹn giờ:</b> web kiểm tra 5 phút một lần nên bài có thể lên trễ vài phút. Đăng thành công thì tự ghi nhận vào thống kê, không cần xác nhận thêm.</p>
 <p><b>Bài báo Lỗi:</b> mở bài xem lý do rồi đăng lại. Bài quá giờ hơn 6 tiếng sẽ không tự đăng.</p>
 <p><b>Hội nhóm:</b> web sao chép nội dung và mở nhóm, bạn tự dán, bấm Đăng trên Facebook, rồi quay lại xác nhận đã đăng.</p></div></details>
 <details class="hd"><summary>Quỹ<small>Nhân viên và quản lý</small></summary><div class="hd-body"><ol><li>Chọn <b>Thu</b> hoặc <b>Chi</b>.</li><li>Nhập ngày, nội dung, số tiền, ghi chú nếu có.</li><li>Bấm <b>Thêm</b>.</li></ol>
@@ -410,7 +420,7 @@ dialog h2{margin-bottom:14px;font-size:18px;line-height:24px;font-weight:700}
 <details class="hd"><summary>Chụp ảnh gửi nhóm<small>Mọi người</small></summary><div class="hd-body"><ol><li>Bấm <b>Chụp ảnh</b> ở vùng cần gửi.</li><li>Xem ảnh, rồi chọn <b>Chép ảnh</b>, <b>Gửi</b> hoặc <b>Tải ảnh</b>.</li><li>Trên máy tính, chép xong dán vào Zalo bằng <b>Ctrl + V</b>.</li></ol>
 <p>Để ảnh nét, hãy gửi ảnh chất lượng gốc nếu Zalo có tùy chọn này.</p></div></details>
 <details class="hd"><summary>Quản lý<small>Quản lý</small></summary><div class="hd-body"><p>Bấm <b>Quản lý</b>, đăng nhập bằng Gmail đã được cấp quyền. Bấm <b>Thoát</b> khi xong.</p>
-<ul><li><b>Khai báo siêu thị:</b> mã đã lưu thì không đổi được, chỉ đổi được tên.</li><li><b>Khai báo nhân viên:</b> mỗi dòng một người, riêng từng siêu thị. Nhân viên siêu thị 5277 tự chép sang web đăng bài mỗi giờ.</li><li><b>Khai báo ca:</b> nhập giờ công từng ca, rồi mã ca và màu. Giờ của mã ca tự cộng.</li><li><b>Khóa tuần:</b> khi nhân viên sắp xong. Quản lý vẫn sửa được.</li><li><b>Roadshow:</b> bấm <b>Tạo lịch chạy</b>, chọn ngày và siêu thị tham gia, nhập chi phí, khóa lịch khi chốt.</li><li><b>Thống kê:</b> xem số ca từng người và chênh lệch ngày cuối tuần.</li><li><b>Khai báo cột:</b> ở tab Nhập liệu, đổi cột của bảng.</li></ul>
+<ul><li><b>Khai báo siêu thị:</b> mã đã lưu thì không đổi được, chỉ đổi được tên.</li><li><b>Khai báo nhân viên:</b> mỗi dòng một người, riêng từng siêu thị. Nhân viên siêu thị 5277 tự chép sang web đăng bài mỗi giờ.</li><li><b>Khai báo ca:</b> nhập giờ công từng ca, rồi mã ca và màu. Giờ của mã ca tự cộng.</li><li><b>Khóa tuần:</b> khi nhân viên sắp xong. Quản lý vẫn sửa được.</li><li><b>Roadshow:</b> bấm <b>Tạo lịch chạy</b>, chọn ngày, siêu thị tham gia, khai báo buổi và giờ từng ngày, nhập chi phí, khóa lịch khi chốt.</li><li><b>Thống kê:</b> xem số ca từng người và chênh lệch ngày cuối tuần.</li><li><b>Khai báo cột:</b> ở tab Nhập liệu, đổi cột của bảng.</li></ul>
 <p>Dữ liệu sao lưu về Google Sheet mỗi ngày, trong các tab bắt đầu bằng FB_.</p></div></details>
 <details class="hd"><summary>Khi gặp sự cố<small>Mọi người</small></summary><div class="hd-body"><ul><li><b>Không thấy dữ liệu mới:</b> tải lại trang, trên máy tính bấm Ctrl + F5.</li><li><b>Mạng yếu, chưa lưu được:</b> ca vẫn còn trên máy, chờ có mạng rồi bấm <b>Lưu</b> lại.</li><li><b>Báo không có quyền:</b> tuần hoặc lịch đã khóa, hãy báo quản lý.</li><li><b>Hai người sửa cùng một ô:</b> người lưu sau sẽ ghi đè, nên kiểm tra lại lịch sau khi lưu.</li></ul></div></details>
 </section>
@@ -484,7 +494,9 @@ const FB_SDK="https://www.gstatic.com/firebasejs/11.10.0/";
 const QUAN_LY=["dienmayxanhbh.5277@gmail.com"];
 const DAYS = ["Thứ 2","Thứ 3","Thứ 4","Thứ 5","Thứ 6","Thứ 7","CN"];
 const COLORS = {trang:"Xanh dương",kem:"Cam nhạt",xanh:"Xanh lá",vang:"Vàng",do:"Đỏ"};
-const BUOI = {S:"Sáng",C:"Chiều"};
+const BUOI_CU=[{id:"S",ten:"Sáng",tu:"",den:""},{id:"C",ten:"Chiều",tu:"",den:""}];
+const buoiCua=(p,d)=>(p.buoi&&p.buoi[d])||BUOI_CU;
+const gioBuoi=b=>b.tu&&b.den?b.tu.replace(/^0/,"")+" – "+b.den.replace(/^0/,""):"";
 const STORE_KEY = "lich_sieu_thi_v3";
 const ST_KEY = "lich_sieu_thi_chon";
 const $ = id => document.getElementById(id);
@@ -574,7 +586,7 @@ function fbApply(){
   fb.plans.forEach(p=>Object.keys(p.checks||{}).forEach(k=>{if(p.checks[k])checks[p.id+"|"+k]=true}));
   fb.stores.forEach(s=>rsEmp[s.ma]=(fb.sts[s.ma]||{}).employees||[]);
   Object.assign(state,{stores:fb.stores,units:me.units&&me.units.length?me.units:GIO_MAC_DINH,employees:me.employees||[],codes:me.codes&&me.codes.length?me.codes:CA_MAC_DINH,cells,locks,
-    rsPlans:fb.plans.map(p=>({id:p.id,month:p.month,dates:p.dates||[],stores:p.stores||[],cost:p.cost||0,locked:!!p.locked})),rsChecks:checks,rsEmp,loaded:true,failed:false});
+    rsPlans:fb.plans.map(p=>({id:p.id,month:p.month,dates:p.dates||[],stores:p.stores||[],buoi:p.buoi||{},cost:p.cost||0,locked:!!p.locked})),rsChecks:checks,rsEmp,loaded:true,failed:false});
   apNhap();
   const a=document.activeElement,go=a&&/INPUT|SELECT|TEXTAREA/.test(a.tagName)&&!a.classList.contains("store-sel")&&$("view").contains(a);
   if(!go)render();
@@ -619,9 +631,9 @@ async function apiPost(b){
     case "bangDelete":return F.setDoc(stDoc(st,"bang",ym()),{rows:{[b.id]:X()}},{merge:true});
     case "rsSave":{
       const r=F.doc(db,"rsKe",b.id),cu=state.rsPlans.some(p=>p.id===b.id);
-      if(!cu)return F.setDoc(r,{month:b.month,dates:b.dates,stores:b.stores,cost:0,locked:false,checks:{}});
-      const giu={};Object.keys(state.rsChecks).forEach(k=>{const a=k.split("|");if(a[0]===b.id&&b.dates.includes(a[1])&&b.stores.includes(a[2]))giu[a.slice(1).join("|")]=true});
-      return F.updateDoc(r,{dates:b.dates,stores:b.stores,checks:giu});
+      if(!cu)return F.setDoc(r,{month:b.month,dates:b.dates,stores:b.stores,buoi:b.buoi,cost:0,locked:false,checks:{}});
+      const giu={};Object.keys(state.rsChecks).forEach(k=>{const a=k.split("|");if(a[0]===b.id&&b.dates.includes(a[1])&&b.stores.includes(a[2])&&(b.buoi[a[1]]||[]).some(x=>x.id===a[4]))giu[a.slice(1).join("|")]=true});
+      return F.updateDoc(r,{dates:b.dates,stores:b.stores,buoi:b.buoi,checks:giu});
     }
     case "rsDelete":return F.deleteDoc(F.doc(db,"rsKe",b.id));
     case "rsToggle":{
@@ -868,9 +880,8 @@ function planPeople(p){
 }
 function planRows(p){
   const rows=planPeople(p).map(({st,n})=>{
-    let s=0,c=0;
-    p.dates.forEach(x=>{if(state.rsChecks[ckKey(p,x,st,n,"S")])s++;if(state.rsChecks[ckKey(p,x,st,n,"C")])c++});
-    return {st,n,s,c,t:s+c,money:0};
+    let t=0;p.dates.forEach(x=>buoiCua(p,x).forEach(b=>{if(state.rsChecks[ckKey(p,x,st,n,b.id)])t++}));
+    return {st,n,t,money:0};
   });
   const tt=rows.reduce((a,r)=>a+r.t,0),per=tt?p.cost/tt:0;
   rows.forEach(r=>r.money=r.t*per);
@@ -922,53 +933,54 @@ function renderChecklist(p,idx){
   const box=el("section","panel"),head=el("div","panel-head"),people=planPeople(p),off=p.locked&&!state.pw;
   head.append(el("h2","","Checklist lịch "+(idx+1)),el("span","pill"+(p.locked?" lock":""),p.locked?"Đã khóa":"Đang mở"));box.append(head);
   if(!p.dates.includes(state.rsDay)){const t=ymd(new Date());state.rsDay=p.dates.find(x=>x>=t)||p.dates[0]}
-  const count=(x,b)=>people.filter(a=>state.rsChecks[ckKey(p,x,a.st,a.n,b)]).length;
+  const dem=x=>buoiCua(p,x).reduce((t,b)=>t+people.filter(a=>state.rsChecks[ckKey(p,x,a.st,a.n,b.id)]).length,0);
   const dw=el("div","days");
   p.dates.forEach(x=>{
     const b=btn("dayb","",()=>{state.rsDay=x;render()});
     b.setAttribute("aria-pressed",x===state.rsDay);
-    b.append(el("b","",dayName(x)+" "+dm(parse(x))),el("span","",count(x,"S")+" sáng · "+count(x,"C")+" chiều"));
+    b.append(el("b","",dayName(x)+" "+dm(parse(x))),el("span","",buoiCua(p,x).length+" buổi · "+dem(x)+" lượt"));
     dw.append(b);
   });
   box.append(dw);
   if(off)box.append(el("div","lockline","Lịch này đã khóa, không tick thêm được."));
   if(!people.length){box.append(el("p","empty","Siêu thị tham gia chưa có nhân viên."));return box}
-  const t=el("table","check-t"),th=el("thead"),r=el("tr"),x=state.rsDay;
-  r.append(el("th","","Nhân viên"),el("th","mid","Sáng"),el("th","mid","Chiều"));th.append(r);t.append(th);
+  const t=el("table","check-t"),th=el("thead"),r=el("tr"),x=state.rsDay,ds=buoiCua(p,x);
+  r.append(el("th","","Nhân viên"));
+  ds.forEach(b=>{const c=el("th","mid",b.ten);if(gioBuoi(b))c.append(el("small","",gioBuoi(b)));r.append(c)});th.append(r);t.append(th);
   const tb=el("tbody");let last=null;
   people.forEach(({st,n})=>{
     if(p.stores.length>1&&st!==last){
-      const g=el("tr","group"),c=el("td","",storeName(st));c.colSpan=3;g.append(c);tb.append(g);last=st;
+      const g=el("tr","group"),c=el("td","",storeName(st));c.colSpan=ds.length+1;g.append(c);tb.append(g);last=st;
     }
     const tr=el("tr");tr.append(el("td","name",n));
-    Object.keys(BUOI).forEach(b=>{
-      const k=ckKey(p,x,st,n,b),td=el("td","mid"),l=el("label","tick"+(off?" off":"")),c=el("input");
+    ds.forEach(bu=>{
+      const b=bu.id,k=ckKey(p,x,st,n,b),td=el("td","mid"),l=el("label","tick"+(off?" off":"")),c=el("input");
       c.type="checkbox";c.checked=!!state.rsChecks[k];c.disabled=off;c.dataset.k=k;
-      c.setAttribute("aria-label",n+" "+st+" "+dm(parse(x))+" buổi "+BUOI[b]);
+      c.setAttribute("aria-label",n+" "+st+" "+dm(parse(x))+" buổi "+bu.ten);
       c.onchange=()=>toggleRs(p,x,st,n,b,c.checked);
       l.append(c);td.append(l);tr.append(td);
     });
     tb.append(tr);
   });
-  t.append(tb);box.append(t);return box;
+  t.append(tb);const kh=el("div","table-scroll");kh.append(t);box.append(kh);return box;
 }
 function renderSum(title,d,showStore){
   const box=el("section","panel"),head=el("div","panel-head");
   head.append(el("h2","",title));box.append(head);
   if(!d.rows.length){box.append(el("p","empty","Chưa có số liệu."));return box}
   const rows=[...d.rows].sort((a,b)=>b.t-a.t||a.n.localeCompare(b.n,"vi"));
-  const ts=rows.reduce((a,r)=>a+r.s,0),tc=rows.reduce((a,r)=>a+r.c,0),tt=ts+tc;
+  const tt=rows.reduce((a,r)=>a+r.t,0);
   const sc=el("div","table-scroll"),g=el("table","sum"),th=el("thead"),hr=el("tr");
-  ["Nhân viên","Sáng","Chiều","Tổng lần","Chi phí"].forEach(x=>hr.append(el("th","",x)));th.append(hr);g.append(th);
+  ["Nhân viên","Số buổi đã chạy","Chi phí"].forEach(x=>hr.append(el("th","",x)));th.append(hr);g.append(th);
   const body=el("tbody"),num=v=>el("td",v===0?"zero":"",v);
   rows.forEach(r=>{
     const tr=el("tr"),nm=el("td","",r.n);if(showStore)nm.append(el("small","",r.st));
-    tr.append(nm,num(r.s),num(r.c),num(r.t),el("td",r.t?"":"zero",d.cost?money(r.money):"–"));
+    tr.append(nm,num(r.t),el("td",r.t?"":"zero",d.cost?money(r.money):"–"));
     body.append(tr);
   });
   g.append(body);
   const tf=el("tfoot"),fr=el("tr");
-  fr.append(el("td","","Tổng"),el("td","",ts),el("td","",tc),el("td","",tt),el("td","",d.cost?money(d.cost):"–"));
+  fr.append(el("td","","Tổng"),el("td","",tt),el("td","",d.cost?money(d.cost):"–"));
   tf.append(fr);g.append(tf);sc.append(g);box.append(sc);
   if(d.per)box.append(el("p","note","Chia đều theo số lần: "+money(d.per)+"/lần"));
   return box;
@@ -978,8 +990,8 @@ function renderSumAll(plans){
   plans.forEach(p=>{
     const d=planRows(p);cost+=d.cost;
     d.rows.forEach(r=>{
-      const k=r.st+"|"+r.n,x=map[k]=map[k]||{st:r.st,n:r.n,s:0,c:0,t:0,money:0};
-      x.s+=r.s;x.c+=r.c;x.t+=r.t;x.money+=r.money;
+      const k=r.st+"|"+r.n,x=map[k]=map[k]||{st:r.st,n:r.n,t:0,money:0};
+      x.t+=r.t;x.money+=r.money;
     });
   });
   return renderSum("Tổng kết tháng "+(state.month+1),{rows:Object.values(map),per:0,cost},state.stores.length>1);
@@ -993,7 +1005,7 @@ function renderPlanAdmin(p){
   l.append(c);row.append(l,btn("btn","Lưu chi phí",()=>saveCost(p)));
   const acts=el("div","tools");acts.style.margin="0";
   acts.append(btn("btn"+(p.locked?"":" primary"),p.locked?"Mở khóa lịch":"Khóa lịch",()=>setRsLock(p,!p.locked)),
-    btn("btn","Sửa ngày và siêu thị",()=>startDraft(p)),btn("btn danger","Xóa lịch",()=>delPlan(p)));
+    btn("btn","Sửa ngày, buổi, siêu thị",()=>startDraft(p)),btn("btn danger","Xóa lịch",()=>delPlan(p)));
   b.append(row,acts);box.append(b);box.style.marginBottom="var(--gap)";return box;
 }
 function renderDraft(){
@@ -1005,7 +1017,15 @@ function renderDraft(){
   for(let i=0;i<(first.getDay()+6)%7;i++)grid.append(el("span",""));
   for(let d=1;d<=lastDay;d++){
     const x=ymd(new Date(state.year,state.month,d)),on=dr.dates.includes(x);
-    const b=btn("",d,()=>{dr.dates=on?dr.dates.filter(y=>y!==x):[...dr.dates,x].sort();render()});
+    const b=btn("",d,()=>{
+      if(on){dr.dates=dr.dates.filter(y=>y!==x);delete dr.buoi[x]}
+      else{
+        const tr=dr.dates.filter(y=>y<x).pop()||dr.dates[0];
+        dr.dates=[...dr.dates,x].sort();
+        dr.buoi[x]=tr?dr.buoi[tr].map(y=>({...y,id:buoiId()})):[{id:buoiId(),ten:"Sáng",tu:"",den:""}];
+      }
+      render();
+    });
     b.setAttribute("aria-pressed",on);b.setAttribute("aria-label","Ngày "+dm(parse(x)));grid.append(b);
   }
   body.append(grid);cal.append(body);
@@ -1017,10 +1037,28 @@ function renderDraft(){
     c.onchange=()=>{dr.stores=c.checked?[...dr.stores,s.ma]:dr.stores.filter(x=>x!==s.ma);render()};
     l.append(c,el("span","",storeLabel(s)));b2.append(l);
   });
+  side.append(b2);
+  const b3=el("section","panel full"),h3=el("div","panel-head"),b4=el("div","admin-body");
+  h3.append(el("h2","","Bước 3: khai báo buổi và giờ từng ngày"));
+  if(dr.dates.length>1)h3.append(btn("btn","Áp dụng ngày đầu cho tất cả",()=>{const g=dr.buoi[dr.dates[0]];dr.dates.slice(1).forEach(x=>dr.buoi[x]=g.map(y=>({...y,id:buoiId()})));render()}));
+  b3.append(h3);
+  if(!dr.dates.length)b4.append(el("p","mnote","Chọn ngày chạy trên lịch để khai báo buổi."));
+  dr.dates.forEach(x=>{
+    const box=el("div","bu-day"),tn=el("div","bu-ten");
+    tn.append(el("span","",dayName(x)+" "+dm(parse(x))),btn("btn","+ Thêm buổi",()=>{dr.buoi[x].push({id:buoiId(),ten:"",tu:"",den:""});render()}));box.append(tn);
+    dr.buoi[x].forEach(bu=>{
+      const r=el("div","bu-row"),a=el("input"),t1=el("input"),t2=el("input"),z=btn("x","×",()=>{dr.buoi[x]=dr.buoi[x].filter(y=>y!==bu);render()});
+      a.value=bu.ten;a.placeholder="Tên buổi";a.setAttribute("aria-label","Tên buổi");a.oninput=()=>bu.ten=a.value;
+      t1.type=t2.type="time";t1.value=bu.tu;t2.value=bu.den;t1.setAttribute("aria-label","Giờ bắt đầu");t2.setAttribute("aria-label","Giờ kết thúc");
+      t1.oninput=()=>bu.tu=t1.value;t2.oninput=()=>bu.den=t2.value;z.type="button";z.setAttribute("aria-label","Xóa buổi");
+      r.append(a,t1,t2,z);box.append(r);
+    });
+    b4.append(box);
+  });
   const acts=el("div","dlg-row");
   acts.append(btn("btn","Hủy",()=>{state.rsDraft=null;render()}),
     btn("btn primary",dr.id?"Lưu thay đổi":"Tạo lịch ("+dr.dates.length+" ngày)",saveDraft));
-  b2.append(acts);side.append(b2);wrap.append(cal,side);return wrap;
+  b4.append(acts);b3.append(b4);wrap.append(cal,side,b3);return wrap;
 }
 
 /* ---------- Quỹ ---------- */
@@ -1471,20 +1509,30 @@ async function setLock(week,locked){
 }
 
 /* ---------- Roadshow ---------- */
+const buoiId=()=>Math.random().toString(36).slice(2,8);
 function startDraft(p){
-  state.rsDraft=p?{id:p.id,dates:[...p.dates],stores:[...p.stores]}:{id:null,dates:[],stores:state.stores.length===1?[state.stores[0].ma]:[]};
+  const bb={};if(p)p.dates.forEach(d=>bb[d]=buoiCua(p,d).map(x=>({...x})));
+  state.rsDraft=p?{id:p.id,dates:[...p.dates],stores:[...p.stores],buoi:bb}:{id:null,dates:[],stores:state.stores.length===1?[state.stores[0].ma]:[],buoi:{}};
   render();window.scrollTo(0,0);
 }
 async function saveDraft(){
   const dr=state.rsDraft;
   if(!dr.dates.length){toast("Chọn ít nhất 1 ngày chạy");return}
   if(!dr.stores.length){toast("Chọn ít nhất 1 siêu thị");return}
+  for(const x of dr.dates){
+    if(!dr.buoi[x].length){toast("Ngày "+dm(parse(x))+" chưa có buổi");return}
+    for(const b of dr.buoi[x]){
+      if(!b.ten.trim()){toast("Ngày "+dm(parse(x))+" có buổi chưa đặt tên");return}
+      if(!b.tu||!b.den||b.tu>=b.den){toast("Ngày "+dm(parse(x))+", buổi "+b.ten+": kiểm tra lại giờ");return}
+    }
+    dr.buoi[x].forEach(b=>b.ten=b.ten.trim());
+  }
   if(dr.id){
-    const lost=Object.keys(state.rsChecks).some(k=>{const a=k.split("|");return a[0]===dr.id&&!(dr.dates.includes(a[1])&&dr.stores.includes(a[2]))});
-    if(lost&&!confirm("Các tick của ngày hoặc siêu thị bị bỏ sẽ bị xóa. Tiếp tục?"))return;
+    const lost=Object.keys(state.rsChecks).some(k=>{const a=k.split("|");return a[0]===dr.id&&!(dr.dates.includes(a[1])&&dr.stores.includes(a[2])&&(dr.buoi[a[1]]||[]).some(x=>x.id===a[4]))});
+    if(lost&&!confirm("Các tick của ngày, buổi hoặc siêu thị bị bỏ sẽ bị xóa. Tiếp tục?"))return;
   }
   const id=dr.id||Date.now().toString(36)+Math.random().toString(36).slice(2,6);
-  if(await send({action:"rsSave",id,month:ym(),dates:dr.dates,stores:dr.stores},"Đã lưu lịch chạy")){
+  if(await send({action:"rsSave",id,month:ym(),dates:dr.dates,stores:dr.stores,buoi:dr.buoi},"Đã lưu lịch chạy")){
     state.rsDraft=null;state.rsPlan=id;await load(true);
   }
 }

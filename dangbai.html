@@ -274,7 +274,7 @@ function demoApi(a,p){
   if(a==='getData')return xong();
   if(['markDone','markGroup','staffSave','staffUpload','staffPost'].includes(a)&&p.ma!=='5678')throw new Error('Sai mã nhân viên');
   if(a==='markDone'){const b=q(p.id);if(b.nvId!==p.nvId)throw new Error('Bài này không phân cho nhân viên đã chọn');if(p.noiDung!==undefined)b.noiDung=p.noiDung;if(p.anhUrl!==undefined)b.anhUrl=p.anhUrl;Object.assign(b,{trangThai:'Đã đăng',dangLuc:gioNay(),linkBai:p.linkBai||'',ghiChu:p.ghiChu||b.ghiChu,capNhat:gioNay()});return xong()}
-  if(a==='staffSave'){const b=q(p.id);if(b.nvId!==p.nvId)throw new Error('Bài này không phân cho nhân viên đã chọn');b.noiDung=p.noiDung;b.anhUrl=p.anhUrl;b.tuDong=!!p.tuDong&&!!p.noiDung;if(b.trangThai==='Lỗi')Object.assign(b,{trangThai:'Chưa đăng',loi:''});return xong()}
+  if(a==='staffSave'){const b=q(p.id);if(b.nvId!==p.nvId)throw new Error('Bài này không phân cho nhân viên đã chọn');b.noiDung=p.noiDung;b.anhUrl=p.anhUrl;b.tuDong=!!p.tuDong&&!!p.noiDung;b.gioDang=b.tuDong?(p.gioDang||''):'';if(b.trangThai==='Lỗi')Object.assign(b,{trangThai:'Chưa đăng',loi:''});return xong()}
   if(a==='staffPost'){const b=q(p.id);if(b.nvId!==p.nvId)throw new Error('Bài này không phân cho nhân viên đã chọn');Object.assign(b,{noiDung:p.noiDung,anhUrl:p.anhUrl,trangThai:'Đã đăng',dangLuc:gioNay(),ghiChu:'Chạy thử, chưa đăng thật'});return xong()}
   if(a==='staffUpload')throw new Error('Bản chạy thử chưa tải được ảnh. Hãy dán link ảnh.');
   if(a==='markGroup'){if(!p.nvId)throw new Error('Chọn tên của bạn trước');if(!d.dangNhom.some(x=>x.baiId===p.baiId&&x.nhomId===p.nhomId))d.dangNhom.push({id:'dn'+Date.now(),baiId:p.baiId,nhomId:p.nhomId,nvId:p.nvId,thoiGian:new Date().toISOString().slice(0,19)});return xong()}
@@ -643,7 +643,8 @@ function moXem(b){
   <button class="nut rong" id="mLenh">Sao chép lệnh cho Claude</button></details>
   <label>Chọn ảnh từ máy<input type="file" id="mFile" accept="image/*"></label>
   <label>Link ảnh<input id="mAnh" value="${esc(b.anhUrl)}"></label>
-  <label class="chon" style="margin-bottom:12px"><input type="checkbox" id="mTu" ${b.tuDong?'checked':''}>Tự đăng lên fanpage đúng giờ</label>
+  <label class="chon" style="margin-bottom:12px"><input type="checkbox" id="mTu" ${b.tuDong?'checked':''}>Page tự đăng</label>
+  <div id="mGioKhung" ${b.tuDong?'':'hidden'} style="margin:-4px 0 12px"><label for="mGioDang" style="display:block;margin-bottom:6px;font-weight:500">Giờ tự đăng (chậm nhất ${esc(b.gio)})</label><input type="time" id="mGioDang" value="${esc(b.gioDang&&b.gioDang<=b.gio?b.gioDang:b.gio)}" max="${esc(b.gio)}" style="width:100%;min-height:44px;padding:0 10px;border:1px solid var(--vien-dam);border-radius:var(--r2);background:var(--the);color:inherit;font:inherit"></div>
   <button class="nut rong" id="mTay" style="margin-bottom:12px">Tôi tự đăng trên Facebook</button>
   <div id="mTayKhoi" hidden><label>Link bài đã đăng<input id="mLink" type="url" placeholder="https://facebook.com/..."></label><label>Ghi chú<input id="mGC"></label><button class="nut chinh" id="mXong">Xác nhận đã đăng</button></div>`:`
   ${b.noiDung?`<div class="nd">${esc(b.noiDung)}</div><button class="nut" style="margin-bottom:10px" id="chepND">Sao chép nội dung</button>`:''}
@@ -656,13 +657,14 @@ function moXem(b){
   if($('chepND'))$('chepND').onclick=()=>chep(b.noiDung);
   if(cuaToi&&b.trangThai==='Đã đăng')ganNhom(b);
   if(!sua)return;
-  const nvId=b.nvId,bd=()=>({id:b.id,nvId,noiDung:$('mND').value.trim(),anhUrl:$('mAnh').value.trim(),tuDong:$('mTu').checked});
+  const nvId=b.nvId,bd=()=>({id:b.id,nvId,noiDung:$('mND').value.trim(),anhUrl:$('mAnh').value.trim(),tuDong:$('mTu').checked,gioDang:$('mTu').checked?$('mGioDang').value:''});
+  $('mTu').onchange=()=>{$('mGioKhung').hidden=!$('mTu').checked};
   $('mLenh').onclick=()=>{const c=[b.chuDe,$('mTT').value.trim()].filter(Boolean).join('\n');if(!c)return toast('Nhập thông tin trước');chep(lenhClaude(c),'Đã sao chép. Dán vào Claude rồi chép bài về đây')};
   $('mFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;toast('Đang tải ảnh...');try{const base64=await nenAnh(f);const r=await chayNV('staffUpload',{id:b.id,nvId,base64,ten:f.name});if(r&&r.url){$('mAnh').value=r.url;toast('Đã tải ảnh. Bấm Lưu bài để giữ lại')}}catch(err){toast('Không đọc được ảnh này')}};
-  $('mLuu').onclick=async()=>{const p=bd();if(!p.noiDung)return toast('Nhập nội dung bài');if(await chayNV('staffSave',p,p.tuDong?'Đã lưu, đến giờ sẽ tự đăng':'Đã lưu bài'))dong()};
+  $('mLuu').onclick=async()=>{const p=bd();if(!p.noiDung)return toast('Nhập nội dung bài');if(p.tuDong&&(!p.gioDang||p.gioDang>b.gio))return toast('Giờ tự đăng phải trước hoặc đúng '+b.gio);if(await chayNV('staffSave',p,p.tuDong?'Đã lưu, bài sẽ tự đăng lúc '+p.gioDang:'Đã lưu bài'))dong()};
   $('mDang').onclick=async()=>{const p=bd();if(!p.noiDung)return toast('Nhập nội dung bài');if(!confirm('Đăng ngay lên fanpage?'))return;if(await chayNV('staffPost',p,'Đã gửi lệnh đăng')){const m=db.baiDang.find(x=>x.id===b.id);moNhom={};moXem(m)}};
   $('mTay').onclick=()=>{$('mTayKhoi').hidden=false;$('mLink').focus()};
-  $('mXong').onclick=async()=>{const lk=$('mLink').value.trim();if(lk&&!linkAnToan(lk))return toast('Link phải bắt đầu bằng https://');const p=bd();delete p.tuDong;if(await chayNV('markDone',{...p,linkBai:lk,ghiChu:$('mGC').value.trim()},'Đã xác nhận'))moXem(db.baiDang.find(x=>x.id===b.id))};
+  $('mXong').onclick=async()=>{const lk=$('mLink').value.trim();if(lk&&!linkAnToan(lk))return toast('Link phải bắt đầu bằng https://');const p=bd();delete p.tuDong;delete p.gioDang;if(await chayNV('markDone',{...p,linkBai:lk,ghiChu:$('mGC').value.trim()},'Đã xác nhận'))moXem(db.baiDang.find(x=>x.id===b.id))};
 }
 function moSua(b){
   const opt=db.nhanVien.map(n=>`<option value="${esc(n.id)}" ${n.id===b.nvId?'selected':''}>${esc(n.ten)}</option>`).join('');
@@ -670,7 +672,7 @@ function moSua(b){
   ${b.loi?`<p class="nd" style="background:var(--do-nhat);color:#831c1e">${esc(b.loi)}</p>`:''}
   <div class="luoi2"><label>Ngày<input type="date" id="sNgay" value="${esc(b.ngay)}"></label><label>Giờ<input type="time" id="sGio" value="${esc(b.gio)}"></label><label>Người đăng<select id="sNV">${opt}</select></label><label>Trạng thái<select id="sTT">${[...new Set(['Chưa đăng','Đã đăng',b.trangThai||'Chưa đăng'])].map(t=>`<option ${t===b.trangThai?'selected':''}>${t}</option>`).join('')}</select></label></div>
   <label>Chủ đề<textarea id="sCD" style="min-height:76px">${esc(b.chuDe)}</textarea></label>
-  ${b.noiDung?`<p style="margin:0 0 4px;color:var(--mo);font-size:13px">Bài do nhân viên viết${b.tuDong?', đã hẹn tự đăng':''}</p><div class="nd">${esc(b.noiDung)}</div>`:''}
+  ${b.noiDung?`<p style="margin:0 0 4px;color:var(--mo);font-size:13px">Bài do nhân viên viết${b.tuDong?', đã hẹn tự đăng'+(b.gioDang?' lúc '+esc(b.gioDang):''):''}</p><div class="nd">${esc(b.noiDung)}</div>`:''}
   ${linkAnToan(b.linkBai)?`<p style="margin:0 0 10px"><a href="${esc(b.linkBai)}" target="_blank" rel="noopener">Mở bài đã đăng</a></p>`:''}
   </div><div class="hop-cuoi"><button class="nut chinh" id="sLuu">Lưu</button>${b.id?`<button class="nut do" id="sXoa">Xóa</button>`:''}<button class="nut" onclick="thuDong()">Đóng</button></div></div></div>`;
   formGoc=giaTriForm();
