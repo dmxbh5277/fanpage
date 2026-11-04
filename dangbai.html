@@ -59,7 +59,7 @@ label.chon{display:flex;gap:7px;align-items:center;color:var(--chu);margin:0 12p
 .so span{font-size:13px;color:var(--mo)}
 .homnay-khoi{display:grid;grid-template-columns:minmax(0,2.4fr) minmax(190px,1fr);gap:var(--gap);margin-bottom:var(--gap)}
 .homnay-khoi .the{margin:0}
-.ba-gio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ba-gio{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
 .gio-the{display:block;width:100%;text-align:left;font:inherit;border:1px solid var(--vien);background:var(--the);border-radius:var(--r2);padding:12px;transition:background-color .12s}
 button.gio-the{cursor:pointer}button.gio-the:hover{background:var(--to)}
 .gio-the>b{display:block;font-size:22px;font-weight:700;line-height:1.2;margin-bottom:8px}
@@ -449,7 +449,7 @@ function veLich(){
     }).join('');
     o.push(`<div class="ngay ${cn} ${k===n?'homnay':''} ${qua?'da-qua':''} ${an?'khong-bai':''}"><div class="so-ngay">${thuNgay(k)}</div>${dong}</div>`);
   }
-  const ba=khung.slice(0,3).map(g=>{const b=homnay.find(x=>x.gio===g);return b?`<button class="gio-the ${b.nvId===toi?'cua-toi':''}" onclick="moBai('${esc(b.id)}')"><b>${esc(g)}</b><div class="nguoi">${avatar(b.nvId,tenNV(b.nvId))}<span>${esc(tenNV(b.nvId))}</span></div>${nhan(b)}</button>`:`<div class="gio-the"><b>${esc(g)}</b><div class="nguoi"><span>Chưa phân</span></div></div>`}).join('');
+  const ba=khung.map(g=>{const b=homnay.find(x=>x.gio===g);return b?`<button class="gio-the ${b.nvId===toi?'cua-toi':''}" onclick="moBai('${esc(b.id)}')"><b>${esc(g)}</b><div class="nguoi">${avatar(b.nvId,tenNV(b.nvId))}<span>${esc(tenNV(b.nvId))}</span></div>${nhan(b)}</button>`:`<div class="gio-the"><b>${esc(g)}</b><div class="nguoi"><span>Chưa phân</span></div></div>`}).join('');
   while(o.length%7)o.push('<div class="ngay ngoai"></div>');
   $('noiDung').innerHTML=`
   <div class="homnay-khoi"><div class="the"><h2>Hôm nay, ${thuNgay(n)}</h2><div class="ba-gio">${ba}</div></div>
@@ -561,11 +561,18 @@ function veKhaiBao(){
 function nutKB(){return`<div class="hang" style="margin-bottom:12px">${[['nv','Nhân viên'],['cd','Chủ đề'],['gio','Khung giờ'],['nh','Hội nhóm']].map(([k,t])=>`<button class="nut ${k===kbTab?'chinh':''}" onclick="doiKB('${k}')">${t}</button>`).join('')}</div>`}
 function veKhungGio(){
   const g=gioDS();
-  $('noiDung').innerHTML=`${nutKB()}<div class="the"><h2>3 khung giờ đăng bài</h2><p style="color:var(--mo);font-size:13px;margin-top:0">Lịch và Phân lịch tự động dùng các khung giờ này. Lịch đã lưu giữ nguyên giờ cũ cho đến khi phân lịch lại.</p><div class="luoi2">${[0,1,2].map(i=>`<label>Khung ${i+1}<input type="time" class="kgio" value="${esc(g[i]||GIO_MAC_DINH[i])}"></label>`).join('')}</div><button class="nut chinh" onclick="luuGio()">Lưu khung giờ</button></div>`;
+  $('noiDung').innerHTML=`${nutKB()}<div class="the"><h2>Khung giờ đăng bài</h2><p style="color:var(--mo);font-size:13px;margin-top:0">Cài bao nhiêu khung giờ trong ngày cũng được. Lịch và Phân lịch tự động dùng các khung giờ này. Lịch đã lưu giữ nguyên giờ cũ cho đến khi phân lịch lại.</p><div id="dsKhung"></div><div class="hang" style="margin-top:8px"><button class="nut" onclick="themKhung()">+ Thêm khung giờ</button><button class="nut chinh" onclick="luuGio()">Lưu khung giờ</button></div></div>`;
+  g.forEach(themKhung);
+}
+function themKhung(v){
+  const r=document.createElement('div');r.className='hang';r.style.margin='0 0 8px';r.style.flexWrap='nowrap';
+  r.innerHTML=`<input type="time" class="kgio" aria-label="Khung giờ" style="flex:1;min-width:0;max-width:220px;min-height:44px;padding:0 10px;border:1px solid var(--vien-dam);border-radius:var(--r2);background:var(--the);color:inherit;font:inherit"><button class="nut" aria-label="Xóa khung giờ" style="min-width:44px;min-height:44px" onclick="this.parentNode.remove()">×</button>`;
+  r.querySelector('input').value=typeof v==='string'?v:'';$('dsKhung').append(r);
 }
 function luuGio(){
-  const ds=[...document.querySelectorAll('.kgio')].map(e=>e.value);
-  if(ds.some(v=>!v)||new Set(ds).size<3)return toast('Nhập đủ 3 khung giờ khác nhau');
+  const ds=[...document.querySelectorAll('.kgio')].map(e=>e.value).filter(Boolean);
+  if(!ds.length)return toast('Cần ít nhất 1 khung giờ');
+  if(new Set(ds).size<ds.length)return toast('Có khung giờ bị trùng');
   chay('saveSlots',{khungGio:ds.sort().map((ten,i)=>({id:'kg'+i,ten,hoatDong:true}))},'Đã lưu khung giờ');
 }
 function hangKB(o,cfg){
