@@ -111,6 +111,18 @@ th{font-weight:500;color:var(--muted);font-size:var(--fs-small)}
 .bu-row input{min-width:0;height:40px;padding:0 6px;border:1px solid var(--control);border-radius:var(--radius-control);background:#fff}
 .bu-row .x{height:40px;border:1px solid var(--control);border-radius:var(--radius-control);background:#fff;color:var(--negative)}
 .admin .full{grid-column:1/-1}
+.bu-nut{display:flex;flex-wrap:wrap;gap:8px}
+.bu-chips{display:flex;flex-wrap:wrap;gap:8px}
+.bu-chip{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-width:112px;min-height:52px;padding:4px 12px;border:1px solid var(--control);border-radius:var(--radius-control);background:#fff;cursor:pointer}
+.bu-chip span{font-size:12px;color:var(--muted)}
+.bu-chip[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+.bu-chip[aria-pressed="true"] span{color:#fff}
+.bu-ps{margin:10px 0 6px;font-size:13px;font-weight:700}
+.bu-them{min-height:44px;margin-top:6px;padding:0;border:0;background:none;color:var(--blue);font-weight:500;cursor:pointer}
+#cfgBuoi .bu-row{grid-template-columns:repeat(12,minmax(0,1fr));margin-top:10px}
+#cfgBuoi .bu-row input:nth-child(1){grid-column:1/span 10;grid-row:1}
+#cfgBuoi .bu-row .x{grid-column:11/span 2;grid-row:1}
+#cfgBuoi .bu-row input:nth-child(2),#cfgBuoi .bu-row input:nth-child(3){grid-column:span 6;grid-row:2}
 @media(max-width:640px){.bu-row{grid-template-columns:repeat(12,minmax(0,1fr))}.bu-row input:nth-child(1){grid-column:1/span 10;grid-row:1}.bu-row .x{grid-column:11/span 2;grid-row:1}.check-t th.mid{min-width:84px;padding-inline:3px}.bu-row input:nth-child(2),.bu-row input:nth-child(3){grid-column:span 6;grid-row:2}}
 .tick{display:flex;align-items:center;justify-content:center;width:100%;height:47px;cursor:pointer}
 .tick:hover{background:var(--blue-pale)}
@@ -420,7 +432,7 @@ dialog h2{margin-bottom:14px;font-size:18px;line-height:24px;font-weight:700}
 <details class="hd"><summary>Chụp ảnh gửi nhóm<small>Mọi người</small></summary><div class="hd-body"><ol><li>Bấm <b>Chụp ảnh</b> ở vùng cần gửi.</li><li>Xem ảnh, rồi chọn <b>Chép ảnh</b>, <b>Gửi</b> hoặc <b>Tải ảnh</b>.</li><li>Trên máy tính, chép xong dán vào Zalo bằng <b>Ctrl + V</b>.</li></ol>
 <p>Để ảnh nét, hãy gửi ảnh chất lượng gốc nếu Zalo có tùy chọn này.</p></div></details>
 <details class="hd"><summary>Quản lý<small>Quản lý</small></summary><div class="hd-body"><p>Bấm <b>Quản lý</b>, đăng nhập bằng Gmail đã được cấp quyền. Bấm <b>Thoát</b> khi xong.</p>
-<ul><li><b>Khai báo siêu thị:</b> mã đã lưu thì không đổi được, chỉ đổi được tên.</li><li><b>Khai báo nhân viên:</b> mỗi dòng một người, riêng từng siêu thị. Nhân viên siêu thị 5277 tự chép sang web đăng bài mỗi giờ.</li><li><b>Khai báo ca:</b> nhập giờ công từng ca, rồi mã ca và màu. Giờ của mã ca tự cộng.</li><li><b>Khóa tuần:</b> khi nhân viên sắp xong. Quản lý vẫn sửa được.</li><li><b>Roadshow:</b> bấm <b>Tạo lịch chạy</b>, chọn ngày, siêu thị tham gia, khai báo buổi và giờ từng ngày, nhập chi phí, khóa lịch khi chốt.</li><li><b>Thống kê:</b> xem số ca từng người và chênh lệch ngày cuối tuần.</li><li><b>Khai báo cột:</b> ở tab Nhập liệu, đổi cột của bảng.</li></ul>
+<ul><li><b>Khai báo siêu thị:</b> mã đã lưu thì không đổi được, chỉ đổi được tên.</li><li><b>Khai báo nhân viên:</b> mỗi dòng một người, riêng từng siêu thị. Nhân viên siêu thị 5277 tự chép sang web đăng bài mỗi giờ.</li><li><b>Khai báo ca:</b> nhập giờ công từng ca, rồi mã ca và màu. Giờ của mã ca tự cộng.</li><li><b>Khóa tuần:</b> khi nhân viên sắp xong. Quản lý vẫn sửa được.</li><li><b>Roadshow:</b> bấm <b>Tạo lịch chạy</b>, bấm <b>Khai báo buổi</b> để nhập tên buổi và giờ một lần. Khi tạo lịch, chọn ngày, siêu thị và bấm chọn buổi cho từng ngày, giờ tự gán theo khai báo. Ngày có giờ khác thì dùng <b>Thêm buổi phát sinh</b>. Sau đó nhập chi phí, khóa lịch khi chốt.</li><li><b>Thống kê:</b> xem số ca từng người và chênh lệch ngày cuối tuần.</li><li><b>Khai báo cột:</b> ở tab Nhập liệu, đổi cột của bảng.</li></ul>
 <p>Dữ liệu sao lưu về Google Sheet mỗi ngày, trong các tab bắt đầu bằng FB_.</p></div></details>
 <details class="hd"><summary>Khi gặp sự cố<small>Mọi người</small></summary><div class="hd-body"><ul><li><b>Không thấy dữ liệu mới:</b> tải lại trang, trên máy tính bấm Ctrl + F5.</li><li><b>Mạng yếu, chưa lưu được:</b> ca vẫn còn trên máy, chờ có mạng rồi bấm <b>Lưu</b> lại.</li><li><b>Báo không có quyền:</b> tuần hoặc lịch đã khóa, hãy báo quản lý.</li><li><b>Hai người sửa cùng một ô:</b> người lưu sau sẽ ghi đè, nên kiểm tra lại lịch sau khi lưu.</li></ul></div></details>
 </section>
@@ -443,6 +455,16 @@ dialog h2{margin-bottom:14px;font-size:18px;line-height:24px;font-weight:700}
 </dialog>
 
 
+<dialog id="buoiDlg">
+  <h2>Khai báo buổi Roadshow</h2>
+  <p class="mnote">Khai báo một lần, dùng chung cho mọi lịch. Đổi giờ ở đây chỉ áp dụng cho lịch chọn sau, lịch đã tạo giữ nguyên.</p>
+  <div id="cfgBuoi"></div>
+  <button class="btn" id="addBuoi" style="margin-top:10px">+ Thêm buổi</button>
+  <div class="dlg-row">
+    <button class="btn" id="closeBuoi">Đóng</button>
+    <button class="btn primary" id="saveBuoi">Lưu</button>
+  </div>
+</dialog>
 <dialog id="storeDlg">
   <h2>Khai báo siêu thị</h2>
   <div class="field">Mã và tên siêu thị
@@ -502,7 +524,7 @@ const ST_KEY = "lich_sieu_thi_chon";
 const $ = id => document.getElementById(id);
 
 const state = {nhap:{},nhapSt:null,dangLuu:false,mobile:window.matchMedia("(max-width:640px)").matches,view:"nhom",day:null,me:"",multi:false,sel:new Set(),st:"",stores:[],units:[],tab:"ca",year:0,month:0,week:null,rsDay:null,employees:[],codes:[],cells:{},locks:{},
-  quy:null,quyForm:null,bang:null,rsPlans:[],rsChecks:{},rsEmp:{},rsPlan:null,rsDraft:null,pw:null,active:null,pending:0,loadId:0,loaded:false,failed:false,after:null};
+  quy:null,quyForm:null,bang:null,rsPlans:[],rsChecks:{},rsEmp:{},rsPlan:null,rsDraft:null,rsBuoi:[],pw:null,active:null,pending:0,loadId:0,loaded:false,failed:false,after:null};
 
 function mondayOf(d){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x}
 function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
@@ -559,6 +581,7 @@ async function fbMo(){
     if(u&&!ok){toast("Tài khoản này không có quyền quản lý");A.signOut(auth)}
     render();
   });
+  F.onSnapshot(F.doc(db,"config","rsBuoi"),x=>{state.rsBuoi=(x.data()||{}).list||[];if(state.loaded)render()},fbLoi);
   F.onSnapshot(F.doc(db,"config","stores"),x=>{fb.stores=(x.data()||{}).list||[];fbLuon()},fbLoi);
   F.onSnapshot(F.collection(db,"st"),x=>{const m={};x.forEach(d=>m[d.id]=d.data());fb.sts=m;fbApply()},fbLoi);
 }
@@ -604,6 +627,7 @@ async function apiPost(b){
   switch(b.action){
     case "setCells":return fbCells(st,b.cells);
     case "setLock":return F.setDoc(stDoc(st,"tuan",b.week),{locked:!!b.locked},{merge:true});
+    case "saveBuoi":return F.setDoc(F.doc(db,"config","rsBuoi"),{list:b.list});
     case "saveStores":return F.setDoc(F.doc(db,"config","stores"),{list:b.stores});
     case "saveEmployees":return F.setDoc(stDoc(st),{employees:b.employees},{merge:true});
     case "saveCodes":return F.setDoc(stDoc(st),{codes:b.codes,units:b.units},{merge:true});
@@ -892,7 +916,7 @@ function renderRs(){
   v.append(titleRow("Roadshow tháng "+(state.month+1),!state.loaded?"Đang tải":!state.stores.length?"Chưa khai báo siêu thị":plans.length?plans.length+" lịch chạy, "+lan+" lượt đã tick":"Tháng này chưa có lịch chạy"));
   if(!state.loaded){stateBlock(v);return}
   if(!state.stores.length){noStore(v);return}
-  if(state.pw&&!state.rsDraft){const t=el("div","tools");t.append(btn("btn primary","+ Tạo lịch chạy",()=>startDraft(null)));v.append(t)}
+  if(state.pw&&!state.rsDraft){const t=el("div","tools");t.append(btn("btn primary","+ Tạo lịch chạy",()=>startDraft(null)),btn("btn","Khai báo buổi",openBuoi));v.append(t)}
   if(state.rsDraft)v.append(renderDraft());
   if(!plans.length){
     if(!state.rsDraft){const p=el("section","panel"),e=el("p","empty",state.pw?"Bấm Tạo lịch chạy để chọn ngày và siêu thị.":"Quản lý chưa tạo lịch chạy.");e.style.marginTop="16px";p.append(e);v.append(p)}
@@ -1008,6 +1032,28 @@ function renderPlanAdmin(p){
     btn("btn","Sửa ngày, buổi, siêu thị",()=>startDraft(p)),btn("btn danger","Xóa lịch",()=>delPlan(p)));
   b.append(row,acts);box.append(b);box.style.marginBottom="var(--gap)";return box;
 }
+const laMau=(y,m)=>y.id===m.id&&y.ten===m.ten&&y.tu===m.tu&&y.den===m.den;
+function openBuoi(){$("cfgBuoi").textContent="";state.rsBuoi.forEach(addBuoiRow);if(!state.rsBuoi.length)addBuoiRow({});$("buoiDlg").showModal()}
+function addBuoiRow(b){
+  const r=el("div","bu-row"),a=el("input"),t1=el("input"),t2=el("input"),z=btn("x","×",()=>r.remove());
+  r.dataset.id=b.id||buoiId();a.value=b.ten||"";t1.type=t2.type="time";t1.value=b.tu||"";t2.value=b.den||"";z.type="button";
+  a.placeholder="Tên buổi";a.setAttribute("aria-label","Tên buổi");t1.setAttribute("aria-label","Giờ bắt đầu");t2.setAttribute("aria-label","Giờ kết thúc");z.setAttribute("aria-label","Xóa buổi");
+  r.append(a,t1,t2,z);$("cfgBuoi").append(r);
+}
+async function saveBuoi(){
+  const list=[];let loi="";
+  document.querySelectorAll("#cfgBuoi .bu-row").forEach(r=>{
+    const i=r.querySelectorAll("input"),ten=i[0].value.trim(),tu=i[1].value,den=i[2].value;
+    if(!ten&&!tu&&!den)return;
+    if(!ten)loi="Có buổi chưa đặt tên";
+    else if(!tu||!den||tu>=den)loi="Buổi "+ten+": kiểm tra lại giờ";
+    else if(list.some(x=>x.ten===ten))loi="Tên buổi "+ten+" bị trùng";
+    list.push({id:r.dataset.id,ten,tu,den});
+  });
+  if(loi){toast(loi);return}
+  list.sort((a,b)=>a.tu<b.tu?-1:a.tu>b.tu?1:0);
+  if(await send({action:"saveBuoi",list},"Đã lưu buổi")){state.rsBuoi=list;$("buoiDlg").close();render()}
+}
 function renderDraft(){
   const dr=state.rsDraft,wrap=el("div","admin"),cal=el("section","panel"),h=el("div","panel-head");
   h.append(el("h2","","Bước 1: chọn ngày chạy"));cal.append(h);
@@ -1022,7 +1068,7 @@ function renderDraft(){
       else{
         const tr=dr.dates.filter(y=>y<x).pop()||dr.dates[0];
         dr.dates=[...dr.dates,x].sort();
-        dr.buoi[x]=tr?dr.buoi[tr].map(y=>({...y,id:buoiId()})):[{id:buoiId(),ten:"Sáng",tu:"",den:""}];
+        dr.buoi[x]=tr?dr.buoi[tr].map(y=>({...y})):[];
       }
       render();
     });
@@ -1039,20 +1085,36 @@ function renderDraft(){
   });
   side.append(b2);
   const b3=el("section","panel full"),h3=el("div","panel-head"),b4=el("div","admin-body");
-  h3.append(el("h2","","Bước 3: khai báo buổi và giờ từng ngày"));
-  if(dr.dates.length>1)h3.append(btn("btn","Áp dụng ngày đầu cho tất cả",()=>{const g=dr.buoi[dr.dates[0]];dr.dates.slice(1).forEach(x=>dr.buoi[x]=g.map(y=>({...y,id:buoiId()})));render()}));
+  h3.append(el("h2","","Bước 3: chọn buổi cho từng ngày"));
+  const nut=el("div","bu-nut");
+  if(dr.dates.length>1)nut.append(btn("btn","Áp dụng ngày đầu cho tất cả",()=>{const g=dr.buoi[dr.dates[0]];dr.dates.slice(1).forEach(x=>dr.buoi[x]=g.map(y=>({...y})));render()}));
+  nut.append(btn("btn","Khai báo buổi",openBuoi));h3.append(nut);
   b3.append(h3);
-  if(!dr.dates.length)b4.append(el("p","mnote","Chọn ngày chạy trên lịch để khai báo buổi."));
+  const mau=state.rsBuoi;
+  if(!mau.length)b4.append(el("p","mnote","Chưa có buổi nào. Bấm Khai báo buổi để nhập tên buổi và giờ."));
+  if(!dr.dates.length)b4.append(el("p","mnote","Chọn ngày chạy trên lịch, sau đó chọn buổi cho từng ngày."));
   dr.dates.forEach(x=>{
-    const box=el("div","bu-day"),tn=el("div","bu-ten");
-    tn.append(el("span","",dayName(x)+" "+dm(parse(x))),btn("btn","+ Thêm buổi",()=>{dr.buoi[x].push({id:buoiId(),ten:"",tu:"",den:""});render()}));box.append(tn);
-    dr.buoi[x].forEach(bu=>{
+    const box=el("div","bu-day"),chips=el("div","bu-chips");
+    box.append(el("div","bu-ten",dayName(x)+" "+dm(parse(x))));
+    mau.forEach(m=>{
+      const on=dr.buoi[x].some(y=>laMau(y,m)),c=btn("bu-chip","",()=>{
+        dr.buoi[x]=dr.buoi[x].filter(y=>y.id!==m.id);
+        if(!on)dr.buoi[x].push({...m});
+        render();
+      });
+      c.setAttribute("aria-pressed",on);c.append(el("b","",m.ten),el("span","",gioBuoi(m)));chips.append(c);
+    });
+    box.append(chips);
+    const ps=dr.buoi[x].filter(y=>!mau.some(m=>laMau(y,m)));
+    if(ps.length)box.append(el("div","bu-ps","Buổi phát sinh"));
+    ps.forEach(bu=>{
       const r=el("div","bu-row"),a=el("input"),t1=el("input"),t2=el("input"),z=btn("x","×",()=>{dr.buoi[x]=dr.buoi[x].filter(y=>y!==bu);render()});
       a.value=bu.ten;a.placeholder="Tên buổi";a.setAttribute("aria-label","Tên buổi");a.oninput=()=>bu.ten=a.value;
       t1.type=t2.type="time";t1.value=bu.tu;t2.value=bu.den;t1.setAttribute("aria-label","Giờ bắt đầu");t2.setAttribute("aria-label","Giờ kết thúc");
       t1.oninput=()=>bu.tu=t1.value;t2.oninput=()=>bu.den=t2.value;z.type="button";z.setAttribute("aria-label","Xóa buổi");
       r.append(a,t1,t2,z);box.append(r);
     });
+    box.append(btn("bu-them","+ Thêm buổi phát sinh",()=>{dr.buoi[x].push({id:buoiId(),ten:"",tu:"",den:""});render()}));
     b4.append(box);
   });
   const acts=el("div","dlg-row");
@@ -1526,6 +1588,7 @@ async function saveDraft(){
       if(!b.tu||!b.den||b.tu>=b.den){toast("Ngày "+dm(parse(x))+", buổi "+b.ten+": kiểm tra lại giờ");return}
     }
     dr.buoi[x].forEach(b=>b.ten=b.ten.trim());
+    dr.buoi[x].sort((a,b)=>a.tu<b.tu?-1:a.tu>b.tu?1:0);
   }
   if(dr.id){
     const lost=Object.keys(state.rsChecks).some(k=>{const a=k.split("|");return a[0]===dr.id&&!(dr.dates.includes(a[1])&&dr.stores.includes(a[2])&&(dr.buoi[a[1]]||[]).some(x=>x.id===a[4]))});
@@ -1702,6 +1765,9 @@ $("closeCode").onclick=()=>$("codeDlg").close();
 $("addCode").onclick=()=>addCodeRow();
 $("addUnit").onclick=()=>addUnitRow();
 $("addStore").onclick=()=>addStoreRow();
+$("closeBuoi").onclick=()=>$("buoiDlg").close();
+$("addBuoi").onclick=()=>addBuoiRow({});
+$("saveBuoi").onclick=saveBuoi;
 $("closeStore").onclick=()=>$("storeDlg").close();
 $("saveStore").onclick=saveStore;
 $("saveEmp").onclick=saveEmp;
