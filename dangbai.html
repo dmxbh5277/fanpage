@@ -312,20 +312,24 @@ function vongXoay(ds,truocId){
 }
 const textChuDe=c=>c?(c.ten+(c.moTa?'\n'+c.moTa:'')):'';
 function taoXoay(d,tu,den,thu,gios){
-  const dsNV=d.nhanVien.filter(n=>n.hoatDong),dsCD=(d.chuDe||[]).filter(c=>c.hoatDong);if(!dsNV.length)return[];
+  const dsNV=d.nhanVien.filter(n=>n.hoatDong),dsCD0=(d.chuDe||[]).filter(c=>c.hoatDong);if(!dsNV.length)return[];
+  const coDinhId=new Set(dsCD0.map(c=>c.nvCoDinh).filter(id=>dsNV.some(n=>n.id===id)));
+  const dsXoay=dsNV.filter(n=>!coDinhId.has(n.id));
+  const dsCD=dsXoay.length?dsCD0:dsCD0.filter(c=>dsNV.some(n=>n.id===c.nvCoDinh));
+  if(!dsCD.length)return[];
   const giu=d.baiDang.filter(x=>x.ngay>=tu&&x.ngay<=den&&(x.trangThai!=='Chưa đăng'||x.noiDung||x.tuDong));
   const truoc=d.baiDang.filter(x=>x.ngay<tu).sort(sapXep).pop();
-  const layNV=vongXoay(dsNV,truoc&&truoc.nvId),layCD=dsCD.length?vongXoay(dsCD):null,cuoi={},kq=[];
+  const layNV=dsXoay.length?vongXoay(dsXoay,truoc&&truoc.nvId):null,layCD=vongXoay(dsCD),cuoi={},kq=[];
   const c=new Date(tu+'T00:00:00'),het=new Date(den+'T00:00:00');
   for(;c<=het;c.setDate(c.getDate()+1)){
     if(!thu.includes(c.getDay()))continue;
     for(const gio of gios){
       const ngay=ymd(c);
       if(giu.some(x=>x.ngay===ngay&&x.gio===gio))continue;
-      let nv=layNV();const cd=layCD?layCD(cuoi[nv.id]):null;
-      const codinh=cd&&dsNV.find(n=>n.id===cd.nvCoDinh);
-      if(codinh&&codinh.id!==nv.id){layNV.traLai(nv);nv=codinh;layNV.tinLuot(nv.id)}
-      if(cd)cuoi[nv.id]=cd.id;
+      let nv=layNV?layNV():null;const cd=layCD(nv?cuoi[nv.id]:null);
+      const codinh=dsNV.find(n=>n.id===cd.nvCoDinh);
+      if(codinh){if(nv)layNV.traLai(nv);nv=codinh}
+      cuoi[nv.id]=cd.id;
       kq.push({ngay,gio,nvId:nv.id,chuDe:textChuDe(cd),coDinh:!!codinh});
     }
   }
@@ -519,7 +523,7 @@ function vePhanLich(){
   const thu=[[1,'T2'],[2,'T3'],[3,'T4'],[4,'T5'],[5,'T6'],[6,'T7'],[0,'CN']];
   const nv=db.nhanVien.filter(x=>x.hoatDong).length,cd=(db.chuDe||[]).filter(x=>x.hoatDong).length,cdCo=(db.chuDe||[]).filter(x=>x.hoatDong&&db.nhanVien.some(n=>n.hoatDong&&n.id===x.nvCoDinh)).length;
   $('noiDung').innerHTML=`<div class="the"><h2>Chọn tháng và ngày đăng</h2>
-  <p style="color:var(--mo);font-size:14px;margin-top:0">Đang có ${nv} nhân viên và ${cd} chủ đề, trong đó ${cdCo} chủ đề cố định người. Web chọn ngẫu nhiên, nhưng phải đủ một vòng mới lặp lại người hoặc chủ đề.</p>
+  <p style="color:var(--mo);font-size:14px;margin-top:0">Đang có ${nv} nhân viên và ${cd} chủ đề, trong đó ${cdCo} chủ đề cố định người. Người đã cố định chủ đề chỉ đăng chủ đề của mình, không vào vòng xoay các chủ đề còn lại. Những người còn lại được xoay ngẫu nhiên, đủ một vòng mới lặp lại.</p>
   <div class="luoi2"><label>Tháng<input type="month" id="xThang" value="${th}"></label><label>Khung giờ (đổi ở tab Khai báo)<input value="${gioDS().join(', ')}" readonly></label></div>
   <div class="hang">${thu.map(([v,t])=>`<label class="chon"><input type="checkbox" class="xThu" value="${v}" checked>${t}</label>`).join('')}</div>
   <button class="nut chinh" onclick="xemXoay()">Tự động phân lịch</button><div id="xKq" style="margin-top:12px"></div></div>`;
